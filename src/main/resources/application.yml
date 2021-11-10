@@ -1,0 +1,14 @@
+telegrambot:
+  user-name: "@YardSportsTeamLobbyBot"
+  bot-token: 2023056122:AAHe9L2xN363Bvrch7RUOyw1byw5hR6I1g4
+  webhook-path: https://5f34-188-123-231-254.ngrok.io
+
+server:
+  port: 5000
+
+client:
+  rest-api:
+    base-url: "http://localhost:8080"
+
+spring:
+  mvc.hiddenmethod.filter.enabled: true
