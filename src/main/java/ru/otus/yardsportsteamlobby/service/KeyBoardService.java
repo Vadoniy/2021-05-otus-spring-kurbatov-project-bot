@@ -9,6 +9,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
+import ru.otus.yardsportsteamlobby.enums.MainMenuSelect;
 import ru.otus.yardsportsteamlobby.enums.PlayerPosition;
 import ru.otus.yardsportsteamlobby.enums.YesNoSelect;
 
@@ -19,6 +20,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class KeyBoardService {
 
+    private final LocalizationService localizationService;
+
     public InlineKeyboardMarkup createKeyboardMarkup(List<List<InlineKeyboardButton>> inlineKeyboardButtons) {
         final var inlineKeyboardMarkup = new InlineKeyboardMarkup();
         inlineKeyboardMarkup.setKeyboard(inlineKeyboardButtons);
@@ -28,10 +31,10 @@ public class KeyBoardService {
     public InlineKeyboardMarkup createSelectPositionMarkup() {
         final var inlineKeyboardMarkup = new InlineKeyboardMarkup();
         final var fieldButton = new InlineKeyboardButton();
-        fieldButton.setText("Полевой игрок");
+        fieldButton.setText(localizationService.getLocalizedMessage("select.field"));
         fieldButton.setCallbackData(PlayerPosition.FIELD.name());
         final var uniquePositionButton = new InlineKeyboardButton();
-        uniquePositionButton.setText("Вратарь");
+        uniquePositionButton.setText(localizationService.getLocalizedMessage("select.unique"));
         uniquePositionButton.setCallbackData(PlayerPosition.UNIQUE.name());
         final var keyboardButtonsRow1 = new ArrayList<InlineKeyboardButton>();
         keyboardButtonsRow1.add(fieldButton);
@@ -45,10 +48,10 @@ public class KeyBoardService {
     public InlineKeyboardMarkup createSelectYesNoMarkup() {
         final var inlineKeyboardMarkup = new InlineKeyboardMarkup();
         final var yesButton = new InlineKeyboardButton();
-        yesButton.setText("Да");
+        yesButton.setText(localizationService.getLocalizedMessage("select.yes"));
         yesButton.setCallbackData(YesNoSelect.YES.name());
         final var noButton = new InlineKeyboardButton();
-        noButton.setText("Нет");
+        noButton.setText(localizationService.getLocalizedMessage("select.no"));
         noButton.setCallbackData(YesNoSelect.NO.name());
         final var keyboardButtonsRow1 = new ArrayList<InlineKeyboardButton>();
         keyboardButtonsRow1.add(yesButton);
@@ -69,16 +72,21 @@ public class KeyBoardService {
         final var row2 = new KeyboardRow();
         final var row3 = new KeyboardRow();
         final var row4 = new KeyboardRow();
-        row1.add(new KeyboardButton("Зарегистрироваться"));
-        row2.add(new KeyboardButton("Записаться на игру"));
-        row3.add(new KeyboardButton("Создать игру"));
-        row4.add(new KeyboardButton("Удалить свои данные"));
+        row1.add(new KeyboardButton(localizationService.getLocalizedMessage(MainMenuSelect.REGISTER.getMessage())));
+        row2.add(new KeyboardButton(localizationService.getLocalizedMessage(MainMenuSelect.SIGN_UP_FOR_GAME.getMessage())));
+        row3.add(new KeyboardButton(localizationService.getLocalizedMessage(MainMenuSelect.CREATE_GAME.getMessage())));
+        row4.add(new KeyboardButton(localizationService.getLocalizedMessage(MainMenuSelect.DELETE_PLAYER.getMessage())));
         keyboard.add(row1);
         keyboard.add(row2);
         keyboard.add(row3);
         keyboard.add(row4);
         replyKeyboardMarkup.setKeyboard(keyboard);
+        replyKeyboardMarkup.setOneTimeKeyboard(true);
         return replyKeyboardMarkup;
+    }
+
+    public SendMessage createMainMenuKeyboardMessage(long chatId, String textMessage) {
+        return createKeyboardMessage(chatId, textMessage, createMainMenuKeyboard());
     }
 
     public SendMessage createKeyboardMessage(long chatId, String textMessage, ReplyKeyboard keyboardMarkup) {

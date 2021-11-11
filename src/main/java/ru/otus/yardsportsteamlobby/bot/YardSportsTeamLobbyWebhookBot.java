@@ -12,6 +12,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.otus.yardsportsteamlobby.configuration.properties.TelegramBotConfigurationProperties;
 import ru.otus.yardsportsteamlobby.service.CallbackQueryService;
+import ru.otus.yardsportsteamlobby.service.InputMessageService;
 
 import java.util.Optional;
 
@@ -23,6 +24,8 @@ public class YardSportsTeamLobbyWebhookBot extends TelegramWebhookBot {
     private static final String NEW_RECEIVED_MESSAGE_LOG = "Received message from %s: %s";
 
     private final CallbackQueryService callbackQueryService;
+
+    private final InputMessageService inputMessageService;
 
     private final TelegramBotConfigurationProperties telegramBotConfigurationProperties;
 
@@ -63,7 +66,7 @@ public class YardSportsTeamLobbyWebhookBot extends TelegramWebhookBot {
                     .map(Message::getText)
                     .orElse("Empty message");
             log.info(String.format(NEW_RECEIVED_MESSAGE_LOG, from, text));
-            return callbackQueryService.processInputMessage(update.getMessage());
+            return inputMessageService.processInputMessage(update.getMessage());
         } else {
             return new SendMessage("", "Empty data");
         }
