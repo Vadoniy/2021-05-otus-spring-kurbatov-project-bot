@@ -9,6 +9,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.otus.yardsportsteamlobby.enums.DateState;
 import ru.otus.yardsportsteamlobby.enums.MainMenuSelect;
+import ru.otus.yardsportsteamlobby.service.cache.CreateGameCache;
 import ru.otus.yardsportsteamlobby.service.cache.PlayerCache;
 
 import javax.validation.constraints.NotNull;
@@ -20,6 +21,8 @@ import java.util.stream.Stream;
 public class InputMessageService {
 
     private final ConfigurableApplicationContext context;
+
+    private final CreateGameCache createGameCache;
 
     private final GameService gameService;
 
@@ -34,7 +37,7 @@ public class InputMessageService {
         final var userId = message.getFrom().getId();
         final var text = message.getText();
 
-        if (isDayOfGame(text)) {
+        if (isGameDateTime(text) || createGameCache.isDataAlreadyExists(userId)) {
             return gameService.createGame(chatId, userId, text);
         } else if (playerCache.isDataAlreadyExists(userId)) {
             return playerService.registerPlayer(chatId, userId, message.getText());
@@ -49,7 +52,7 @@ public class InputMessageService {
         return processor.process(chatId, userId, text);
     }
 
-    private boolean isDayOfGame(String text) {
+    private boolean isGameDateTime(String text) {
         if (!StringUtils.hasText(text)) {
             return false;
         } else {

@@ -7,7 +7,7 @@ import ru.otus.yardsportsteamlobby.client.YardSportsTeamLobbyClient;
 import ru.otus.yardsportsteamlobby.command.processor.PlayerMenuProcessor;
 import ru.otus.yardsportsteamlobby.dto.RegistrationStateWithRequest;
 import ru.otus.yardsportsteamlobby.enums.PlayerRegistrationState;
-import ru.otus.yardsportsteamlobby.enums.YesNoSelect;
+import ru.otus.yardsportsteamlobby.enums.SureOrNotSelect;
 import ru.otus.yardsportsteamlobby.service.KeyBoardService;
 import ru.otus.yardsportsteamlobby.service.LocalizationService;
 import ru.otus.yardsportsteamlobby.service.cache.PlayerCache;
@@ -29,7 +29,7 @@ public class DeletePlayerProcessor implements PlayerMenuProcessor {
         final var response = new SendMessage();
         response.setChatId(chatId.toString());
         if (PlayerRegistrationState.DELETE == userData.getPlayerRegistrationState()) {
-            if (YesNoSelect.YES == YesNoSelect.valueOf(text)) {
+            if (SureOrNotSelect.SURE_TO_DELETE_PLAYER == SureOrNotSelect.valueOf(text)) {
                 yardSportsTeamLobbyClient.sendDeletePlayerRequest(userId.toString());
                 response.setText(localizationService.getLocalizedMessage("one-way.message.request-is-sent"));
             } else {

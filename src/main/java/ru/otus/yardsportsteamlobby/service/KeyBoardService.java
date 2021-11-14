@@ -11,7 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import ru.otus.yardsportsteamlobby.enums.MainMenuSelect;
 import ru.otus.yardsportsteamlobby.enums.PlayerPosition;
-import ru.otus.yardsportsteamlobby.enums.YesNoSelect;
+import ru.otus.yardsportsteamlobby.enums.SureOrNotSelect;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,10 +49,10 @@ public class KeyBoardService {
         final var inlineKeyboardMarkup = new InlineKeyboardMarkup();
         final var yesButton = new InlineKeyboardButton();
         yesButton.setText(localizationService.getLocalizedMessage("select.yes"));
-        yesButton.setCallbackData(YesNoSelect.YES.name());
+        yesButton.setCallbackData(SureOrNotSelect.SURE_TO_DELETE_PLAYER.name());
         final var noButton = new InlineKeyboardButton();
         noButton.setText(localizationService.getLocalizedMessage("select.no"));
-        noButton.setCallbackData(YesNoSelect.NO.name());
+        noButton.setCallbackData(SureOrNotSelect.NOT_SURE_SURE_TO_DELETE_PLAYER.name());
         final var keyboardButtonsRow1 = new ArrayList<InlineKeyboardButton>();
         keyboardButtonsRow1.add(yesButton);
         keyboardButtonsRow1.add(noButton);
@@ -85,7 +85,8 @@ public class KeyBoardService {
         return replyKeyboardMarkup;
     }
 
-    public SendMessage createMainMenuKeyboardMessage(long chatId, String textMessage) {
+    public SendMessage createMainMenuKeyboardMessage(long chatId) {
+        final var textMessage = localizationService.getLocalizedMessage("main.menu.greetings");
         return createKeyboardMessage(chatId, textMessage, createMainMenuKeyboard());
     }
 
