@@ -3,10 +3,7 @@ package ru.otus.yardsportsteamlobby.enums;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import ru.otus.yardsportsteamlobby.command.processor.PlayerMenuProcessor;
-import ru.otus.yardsportsteamlobby.command.processor.player_menu.EmptyNameProcessor;
-import ru.otus.yardsportsteamlobby.command.processor.player_menu.EmptyNumberProcessor;
-import ru.otus.yardsportsteamlobby.command.processor.player_menu.EmptyPhoneProcessor;
-import ru.otus.yardsportsteamlobby.command.processor.player_menu.EmptyPositionProcessor;
+import ru.otus.yardsportsteamlobby.command.processor.player_menu.*;
 
 @Getter
 @RequiredArgsConstructor
@@ -20,7 +17,7 @@ public enum PlayerRegistrationState {
 
     EMPTY_NUMBER(EmptyNumberProcessor.class),
 
-    DELETE(EmptyNameProcessor.class);
+    DELETE(DeletePlayerProcessor.class);
 
     private final Class<? extends PlayerMenuProcessor> processor;
 }

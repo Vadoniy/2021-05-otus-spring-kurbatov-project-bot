@@ -17,7 +17,7 @@ public enum MainMenuSelect {
 
     CREATE_GAME("CREATE_GAME", "main.menu.create-game", CreateGameProcessor.class),
 
-    DELETE_PLAYER("DELETE_PLAYER", "main.menu.delete-player-data", DeletePlayerProcessor.class);
+    DELETE_PLAYER("DELETE_PLAYER", "main.menu.delete-player-data", MainMenuDeletePlayerProcessor.class);
 
     private final String name;
 

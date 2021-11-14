@@ -21,6 +21,8 @@ public class CalendarService {
 
     private final KeyBoardService keyBoardService;
 
+    private final LocalizationService localizationService;
+
     public SendMessage createMonthKeyboard(Long chatId) {
         final var sendMessage = new SendMessage();
         sendMessage.setChatId(chatId.toString());
@@ -32,7 +34,7 @@ public class CalendarService {
             keyBoardList.add(List.of(monthButton));
         }
         sendMessage.setReplyMarkup(keyBoardService.createKeyboardMarkup(keyBoardList));
-        sendMessage.setText("Выберите месяц");
+        sendMessage.setText(localizationService.getLocalizedMessage("select.month"));
         return sendMessage;
     }
 

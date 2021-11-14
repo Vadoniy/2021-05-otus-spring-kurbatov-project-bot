@@ -30,7 +30,7 @@ public class CallbackQueryService {
         if (Stream.of(PlayerPosition.values()).anyMatch(playerPosition -> playerPosition.name().equals(callbackQueryButton.getData()))) {
             return playerService.registerPlayer(chatId, userId, callbackQueryButton.getData());
         } else if (Stream.of(YesNoSelect.values()).anyMatch(yesNoSelect -> yesNoSelect.name().equals(callbackQueryButton.getData()))) {
-            return playerService.deletePlayer(userId, userId, YesNoSelect.valueOf(callbackQueryButton.getData()));
+            return playerService.deletePlayer(userId, userId, callbackQueryButton.getData());
         } else if (StringUtils.hasText(callbackQueryButton.getData())
                 && (Stream.of(DateState.values()).anyMatch(dateState -> callbackQueryButton.getData().startsWith(dateState.name()))
                 || Stream.of(SkipSelect.values()).anyMatch(skip -> skip.name().equals(callbackQueryButton.getData())))) {
