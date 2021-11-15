@@ -1,12 +1,13 @@
 package ru.otus.yardsportsteamlobby.client;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import ru.otus.yardsportsteamlobby.dto.CreateGameRequest;
 import ru.otus.yardsportsteamlobby.dto.CreatePlayerRequest;
+import ru.otus.yardsportsteamlobby.dto.GameDto;
 import ru.otus.yardsportsteamlobby.dto.ListGameResponse;
-import ru.otus.yardsportsteamlobby.dto.SignUpForGameResponse;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -45,8 +46,8 @@ public class YardSportsTeamLobbyClient {
         return apiRestTemplate.getForObject(GAME_LIST, ListGameResponse.class, Map.of("amountOfGames", amountOfGames));
     }
 
-    public SignUpForGameResponse signUpForGameRequest(long gameId, long teamId, long userId) {
+    public ResponseEntity<GameDto> signUpForGameRequest(long gameId, long teamId, long userId) {
         final var mapvars = Map.of("gameId", gameId, "teamId", teamId, "userId", userId);
-        return apiRestTemplate.postForObject(NEW_GAME_TEAM_PLAYER, null, SignUpForGameResponse.class, mapvars);
+        return apiRestTemplate.postForEntity(NEW_GAME_TEAM_PLAYER, null, GameDto.class, mapvars);
     }
 }

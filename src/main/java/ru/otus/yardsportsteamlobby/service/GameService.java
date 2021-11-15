@@ -2,6 +2,8 @@ package ru.otus.yardsportsteamlobby.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -23,6 +25,7 @@ import java.time.LocalTime;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static ru.otus.yardsportsteamlobby.enums.GameCreatingState.*;
 
@@ -115,17 +118,29 @@ public class GameService {
         response.setChatId(chatId.toString());
         final var selectedGameId = signUpForGameCache.getData(userId).getSelectedGameId();
         final var selectedTeamId = Long.parseLong(text.replace(GameSelectState.SELECTED_TEAM_.name(), ""));
-        final var selectedGame = signUpForGameCache.getData(userId).getLastGames().stream()
-                .filter(game -> selectedGameId.longValue() == game.getGameId())
-                .findAny();
-        final var result = yardSportsTeamLobbyClient.signUpForGameRequest(selectedGameId, selectedTeamId, userId);
-        final var afterSelectionGame = result.getGameDto();
-        //TODO Настроить текст на случай неудачной записи и всё такое
-        final var responseText = new StringBuilder("Ура! Вы в игре!\n");
-        responseText.append(teamsRosterText(afterSelectionGame.getTeamA().getTeamName(), afterSelectionGame.getTeamCapacity(), afterSelectionGame.getTeamA().getLineUp()))
-                .append('\n')
-                .append(teamsRosterText(afterSelectionGame.getTeamB().getTeamName(), afterSelectionGame.getTeamCapacity(), afterSelectionGame.getTeamB().getLineUp()));
-        response.setText(responseText.toString());
+        final var responseEntity = yardSportsTeamLobbyClient.signUpForGameRequest(selectedGameId, selectedTeamId, userId);
+        final var responseStatus = responseEntity.getStatusCode();
+        if (responseStatus == HttpStatus.ALREADY_REPORTED) {
+            response.setText("Выбранная команда полностью укомплектована, выберите другую");
+            response.setReplyMarkup(getTeamRosters(chatId, userId, GameSelectState.SELECTED_GAME_.name() + selectedGameId).getReplyMarkup());
+        } else if (responseStatus == HttpStatus.NO_CONTENT) {
+            response.setText("В командах нет места");
+        } else if (responseStatus == HttpStatus.OK) {
+            final var afterSelectionGame = Optional.of(responseEntity)
+                    .map(HttpEntity::getBody)
+                    .orElseThrow();
+            final var responseText = new StringBuilder("Ура! Вы в игре!\n");
+            responseText
+                    .append(
+                            teamsRosterText(afterSelectionGame.getTeamA().getTeamName(), afterSelectionGame.getTeamCapacity(),
+                                    afterSelectionGame.getTeamA().getLineUp()))
+                    .append('\n')
+                    .append(teamsRosterText(afterSelectionGame.getTeamB().getTeamName(), afterSelectionGame.getTeamCapacity(),
+                            afterSelectionGame.getTeamB().getLineUp()));
+            response.setText(responseText.toString());
+            response.setReplyMarkup(keyBoardService.createMainMenuKeyboard());
+            signUpForGameCache.removeData(userId);
+        }
         return response;
     }
 
