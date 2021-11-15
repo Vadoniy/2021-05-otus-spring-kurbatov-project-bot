@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
 
 @Component
 @RequiredArgsConstructor
-public class CreateGameProcessor implements MainMenuProcessor {
+public class MainMenuCreateGameProcessor implements MainMenuProcessor {
 
     private final GameService gameService;
 

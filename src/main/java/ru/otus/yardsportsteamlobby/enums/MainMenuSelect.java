@@ -15,7 +15,7 @@ public enum MainMenuSelect {
 
     SIGN_UP_FOR_GAME("SIGN_UP_FOR_GAME", "main.menu.sign-up-for-game", SignUpForGameProcessor.class),
 
-    CREATE_GAME("CREATE_GAME", "main.menu.create-game", CreateGameProcessor.class),
+    CREATE_GAME("CREATE_GAME", "main.menu.create-game", MainMenuCreateGameProcessor.class),
 
     DELETE_PLAYER("DELETE_PLAYER", "main.menu.delete-player-data", MainMenuDeletePlayerProcessor.class);
 
