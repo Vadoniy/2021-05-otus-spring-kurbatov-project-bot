@@ -7,7 +7,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.otus.yardsportsteamlobby.command.processor.CreateGameProcessor;
 import ru.otus.yardsportsteamlobby.dto.GameCreatingStateWithRequest;
-import ru.otus.yardsportsteamlobby.enums.SkipSelect;
+import ru.otus.yardsportsteamlobby.enums.CallbackQuerySelect;
 import ru.otus.yardsportsteamlobby.service.KeyBoardService;
 
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ public class EmptyCapacityProcessor implements CreateGameProcessor {
     private ArrayList<List<InlineKeyboardButton>> createSkipButton() {
         final var skipButton = new InlineKeyboardButton();
         skipButton.setText("Пропустить");
-        skipButton.setCallbackData(SkipSelect.SKIP.name());
+        skipButton.setCallbackData(CallbackQuerySelect.SKIP.name());
         final var keyboardButtonsRow1 = new ArrayList<InlineKeyboardButton>();
         keyboardButtonsRow1.add(skipButton);
         final var keyBoardList = new ArrayList<List<InlineKeyboardButton>>(1);

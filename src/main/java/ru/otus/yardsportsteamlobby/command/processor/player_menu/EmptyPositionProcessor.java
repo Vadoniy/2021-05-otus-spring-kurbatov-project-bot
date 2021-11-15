@@ -7,7 +7,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import ru.otus.yardsportsteamlobby.client.YardSportsTeamLobbyClient;
 import ru.otus.yardsportsteamlobby.command.processor.PlayerMenuProcessor;
 import ru.otus.yardsportsteamlobby.dto.RegistrationStateWithRequest;
-import ru.otus.yardsportsteamlobby.enums.PlayerPosition;
+import ru.otus.yardsportsteamlobby.enums.CallbackQuerySelect;
 import ru.otus.yardsportsteamlobby.service.KeyBoardService;
 import ru.otus.yardsportsteamlobby.service.LocalizationService;
 import ru.otus.yardsportsteamlobby.service.cache.PlayerCache;
@@ -28,7 +28,7 @@ public class EmptyPositionProcessor implements PlayerMenuProcessor {
     public SendMessage process(RegistrationStateWithRequest userData, Long chatId, String text, Long userId) {
         final var response = new SendMessage();
         response.setChatId(chatId.toString());
-        userData.getCreatePlayerRequest().setPosition(PlayerPosition.valueOf(text));
+        userData.getCreatePlayerRequest().setPosition(CallbackQuerySelect.valueOf(text));
         userData.getCreatePlayerRequest().setUserId(userId);
         final var apiResponse = yardSportsTeamLobbyClient.sendCreatePlayerRequest(userData.getCreatePlayerRequest());
         response.setText(localizationService.getLocalizedMessage("one-way.message.request-is-sent"));

@@ -2,7 +2,7 @@ package ru.otus.yardsportsteamlobby.dto;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
-import ru.otus.yardsportsteamlobby.enums.PlayerPosition;
+import ru.otus.yardsportsteamlobby.enums.CallbackQuerySelect;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
@@ -20,7 +20,7 @@ public class CreatePlayerRequest {
     @Pattern(regexp = "\\d{11}")
     private String phone;
 
-    private PlayerPosition position;
+    private CallbackQuerySelect position;
 
     private Integer number;
 }

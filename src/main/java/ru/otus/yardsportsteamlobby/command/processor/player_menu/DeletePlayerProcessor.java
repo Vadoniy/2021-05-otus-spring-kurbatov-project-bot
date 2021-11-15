@@ -6,8 +6,8 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import ru.otus.yardsportsteamlobby.client.YardSportsTeamLobbyClient;
 import ru.otus.yardsportsteamlobby.command.processor.PlayerMenuProcessor;
 import ru.otus.yardsportsteamlobby.dto.RegistrationStateWithRequest;
+import ru.otus.yardsportsteamlobby.enums.CallbackQuerySelect;
 import ru.otus.yardsportsteamlobby.enums.PlayerRegistrationState;
-import ru.otus.yardsportsteamlobby.enums.SureOrNotSelect;
 import ru.otus.yardsportsteamlobby.service.KeyBoardService;
 import ru.otus.yardsportsteamlobby.service.LocalizationService;
 import ru.otus.yardsportsteamlobby.service.cache.PlayerCache;
@@ -29,7 +29,7 @@ public class DeletePlayerProcessor implements PlayerMenuProcessor {
         final var response = new SendMessage();
         response.setChatId(chatId.toString());
         if (PlayerRegistrationState.DELETE == userData.getPlayerRegistrationState()) {
-            if (SureOrNotSelect.SURE_TO_DELETE_PLAYER == SureOrNotSelect.valueOf(text)) {
+            if (CallbackQuerySelect.SURE_TO_DELETE_PLAYER == CallbackQuerySelect.valueOf(text)) {
                 yardSportsTeamLobbyClient.sendDeletePlayerRequest(userId.toString());
                 response.setText(localizationService.getLocalizedMessage("one-way.message.request-is-sent"));
             } else {

@@ -7,15 +7,13 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.otus.yardsportsteamlobby.client.YardSportsTeamLobbyClient;
 import ru.otus.yardsportsteamlobby.command.processor.CreateGameProcessor;
 import ru.otus.yardsportsteamlobby.dto.*;
+import ru.otus.yardsportsteamlobby.enums.CallbackQuerySelect;
 import ru.otus.yardsportsteamlobby.enums.CreateGameState;
-import ru.otus.yardsportsteamlobby.enums.GameSelectState;
-import ru.otus.yardsportsteamlobby.enums.SkipSelect;
 import ru.otus.yardsportsteamlobby.service.cache.CreateGameCache;
 import ru.otus.yardsportsteamlobby.service.cache.SignUpForGameCache;
 
@@ -69,12 +67,12 @@ public class GameService {
         final var response = new SendMessage();
         response.setChatId(chatId.toString());
         final var selectedGameId = signUpForGameCache.getData(userId).getSelectedGameId();
-        final var selectedTeamId = Long.parseLong(text.replace(GameSelectState.SELECTED_TEAM_.name(), ""));
+        final var selectedTeamId = Long.parseLong(text.replace(CallbackQuerySelect.SELECTED_TEAM_.name(), ""));
         final var responseEntity = yardSportsTeamLobbyClient.signUpForGameRequest(selectedGameId, selectedTeamId, userId);
         final var responseStatus = responseEntity.getStatusCode();
         if (responseStatus == HttpStatus.ALREADY_REPORTED) {
             response.setText("Выбранная команда полностью укомплектована, выберите другую");
-            response.setReplyMarkup(getTeamRosters(chatId, userId, GameSelectState.SELECTED_GAME_.name() + selectedGameId).getReplyMarkup());
+            response.setReplyMarkup(getTeamRosters(chatId, userId, CallbackQuerySelect.SELECTED_GAME_.name() + selectedGameId).getReplyMarkup());
         } else if (responseStatus == HttpStatus.NO_CONTENT) {
             response.setText("В командах нет места");
         } else if (responseStatus == HttpStatus.OK) {
@@ -100,7 +98,7 @@ public class GameService {
         final var response = new SendMessage();
         response.setChatId(chatId.toString());
         response.setText("Выберите команду:");
-        final var gameId = Long.parseLong(text.replace(GameSelectState.SELECTED_GAME_.name(), ""));
+        final var gameId = Long.parseLong(text.replace(CallbackQuerySelect.SELECTED_GAME_.name(), ""));
         signUpForGameCache.getData(userId).setSelectedGameId(gameId);
         final var signUpData = signUpForGameCache.getData(userId);
         final var selectedGame = signUpData.getLastGames().stream()
@@ -163,7 +161,7 @@ public class GameService {
     private InlineKeyboardButton createTeamRoster(Long teamId, String teamName) {
         final var rosterButton = new InlineKeyboardButton();
         rosterButton.setText(teamName);
-        rosterButton.setCallbackData(GameSelectState.SELECTED_TEAM_.name() + teamId);
+        rosterButton.setCallbackData(CallbackQuerySelect.SELECTED_TEAM_.name() + teamId);
         return rosterButton;
     }
 
@@ -187,7 +185,7 @@ public class GameService {
             anotherGame.setText(gameDto.getGameDateTime().toString()
                     + ": " + gameDto.getTeamA().getTeamName()
                     + " - " + gameDto.getTeamB().getTeamName());
-            anotherGame.setCallbackData(GameSelectState.SELECTED_GAME_.name() + gameDto.getGameId());
+            anotherGame.setCallbackData(CallbackQuerySelect.SELECTED_GAME_.name() + gameDto.getGameId());
             anotherRow.add(anotherGame);
             keyBoardList.add(anotherRow);
         }

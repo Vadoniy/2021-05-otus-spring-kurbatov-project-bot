@@ -6,7 +6,7 @@ import org.springframework.util.StringUtils;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import ru.otus.yardsportsteamlobby.command.processor.CreateGameProcessor;
 import ru.otus.yardsportsteamlobby.dto.GameCreatingStateWithRequest;
-import ru.otus.yardsportsteamlobby.enums.DateState;
+import ru.otus.yardsportsteamlobby.enums.CallbackQuerySelect;
 import ru.otus.yardsportsteamlobby.service.CalendarService;
 import ru.otus.yardsportsteamlobby.service.KeyBoardService;
 
@@ -27,14 +27,14 @@ public class EmptyDateProcessor implements CreateGameProcessor {
     public SendMessage process(GameCreatingStateWithRequest gameData, Long chatId, String text, Long userId) {
         final var response = new SendMessage();
         response.setChatId(chatId.toString());
-        if (StringUtils.hasText(text) && text.startsWith(DateState.SELECTED_MONTH_.name())) {
-            final var daysOfMonthList = calendarService.fillDaysOfMonth(Month.valueOf(text.replace(DateState.SELECTED_MONTH_.name(), "")));
+        if (StringUtils.hasText(text) && text.startsWith(CallbackQuerySelect.SELECTED_MONTH_.name())) {
+            final var daysOfMonthList = calendarService.fillDaysOfMonth(Month.valueOf(text.replace(CallbackQuerySelect.SELECTED_MONTH_.name(), "")));
             response.setReplyMarkup(keyBoardService.createKeyboardMarkup(daysOfMonthList));
             response.setText("Выберите дату");
             return response;
         }
         final var request = gameData.getCreateGameRequest();
-        final var gameDateTime = LocalDate.parse(text.replace(DateState.SELECTED_DATE_.name(), "")).atStartOfDay();
+        final var gameDateTime = LocalDate.parse(text.replace(CallbackQuerySelect.SELECTED_DATE_.name(), "")).atStartOfDay();
         request.setGameDateTime(gameDateTime);
         gameData.setCreateGameState(EMPTY_TIME);
         response.setText("Укажите время игры в формате HH:mm (например, 21:15).");

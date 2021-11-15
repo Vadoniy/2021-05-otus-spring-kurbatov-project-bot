@@ -9,9 +9,8 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
+import ru.otus.yardsportsteamlobby.enums.CallbackQuerySelect;
 import ru.otus.yardsportsteamlobby.enums.MainMenuSelect;
-import ru.otus.yardsportsteamlobby.enums.PlayerPosition;
-import ru.otus.yardsportsteamlobby.enums.SureOrNotSelect;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,10 +31,10 @@ public class KeyBoardService {
         final var inlineKeyboardMarkup = new InlineKeyboardMarkup();
         final var fieldButton = new InlineKeyboardButton();
         fieldButton.setText(localizationService.getLocalizedMessage("select.field"));
-        fieldButton.setCallbackData(PlayerPosition.FIELD.name());
+        fieldButton.setCallbackData(CallbackQuerySelect.FIELD.name());
         final var uniquePositionButton = new InlineKeyboardButton();
         uniquePositionButton.setText(localizationService.getLocalizedMessage("select.unique"));
-        uniquePositionButton.setCallbackData(PlayerPosition.UNIQUE.name());
+        uniquePositionButton.setCallbackData(CallbackQuerySelect.UNIQUE.name());
         final var keyboardButtonsRow1 = new ArrayList<InlineKeyboardButton>();
         keyboardButtonsRow1.add(fieldButton);
         keyboardButtonsRow1.add(uniquePositionButton);
@@ -49,10 +48,10 @@ public class KeyBoardService {
         final var inlineKeyboardMarkup = new InlineKeyboardMarkup();
         final var yesButton = new InlineKeyboardButton();
         yesButton.setText(localizationService.getLocalizedMessage("select.yes"));
-        yesButton.setCallbackData(SureOrNotSelect.SURE_TO_DELETE_PLAYER.name());
+        yesButton.setCallbackData(CallbackQuerySelect.SURE_TO_DELETE_PLAYER.name());
         final var noButton = new InlineKeyboardButton();
         noButton.setText(localizationService.getLocalizedMessage("select.no"));
-        noButton.setCallbackData(SureOrNotSelect.NOT_SURE_SURE_TO_DELETE_PLAYER.name());
+        noButton.setCallbackData(CallbackQuerySelect.NOT_SURE_TO_DELETE_PLAYER.name());
         final var keyboardButtonsRow1 = new ArrayList<InlineKeyboardButton>();
         keyboardButtonsRow1.add(yesButton);
         keyboardButtonsRow1.add(noButton);

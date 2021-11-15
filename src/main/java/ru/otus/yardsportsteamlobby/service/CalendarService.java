@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import ru.otus.yardsportsteamlobby.enums.DateState;
+import ru.otus.yardsportsteamlobby.enums.CallbackQuerySelect;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -30,7 +30,7 @@ public class CalendarService {
         for (Month month : Month.values()) {
             final var monthButton = new InlineKeyboardButton();
             monthButton.setText(month.name());
-            monthButton.setCallbackData(DateState.SELECTED_MONTH_.name() + month.name());
+            monthButton.setCallbackData(CallbackQuerySelect.SELECTED_MONTH_.name() + month.name());
             keyBoardList.add(List.of(monthButton));
         }
         sendMessage.setReplyMarkup(keyBoardService.createKeyboardMarkup(keyBoardList));
@@ -57,7 +57,7 @@ public class CalendarService {
             for (int j = 0; j < 6; j++, i++) {
                 final var anotherDay = new InlineKeyboardButton();
                 anotherDay.setText(String.valueOf(i));
-                anotherDay.setCallbackData(DateState.SELECTED_DATE_.name()
+                anotherDay.setCallbackData(CallbackQuerySelect.SELECTED_DATE_.name()
                         + LocalDate.of(currentYear, month, i).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
                 anotherRow.add(anotherDay);
             }

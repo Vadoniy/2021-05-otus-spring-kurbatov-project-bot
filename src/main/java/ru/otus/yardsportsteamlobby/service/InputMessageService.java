@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
-import ru.otus.yardsportsteamlobby.enums.DateState;
+import ru.otus.yardsportsteamlobby.enums.CallbackQuerySelect;
 import ru.otus.yardsportsteamlobby.enums.MainMenuSelect;
 import ru.otus.yardsportsteamlobby.service.cache.CreateGameCache;
 import ru.otus.yardsportsteamlobby.service.cache.PlayerCache;
@@ -56,7 +56,7 @@ public class InputMessageService {
         if (!StringUtils.hasText(text)) {
             return false;
         } else {
-            return Stream.of(DateState.values()).anyMatch(dateState -> text.startsWith(dateState.name() + "_"));
+            return Stream.of(CallbackQuerySelect.values()).anyMatch(dateState -> text.startsWith(dateState.name() + "_"));
         }
     }
 }
