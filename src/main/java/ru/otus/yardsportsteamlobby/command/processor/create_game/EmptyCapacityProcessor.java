@@ -9,6 +9,7 @@ import ru.otus.yardsportsteamlobby.command.processor.CreateGameProcessor;
 import ru.otus.yardsportsteamlobby.dto.GameCreatingStateWithRequest;
 import ru.otus.yardsportsteamlobby.enums.CallbackQuerySelect;
 import ru.otus.yardsportsteamlobby.service.KeyBoardService;
+import ru.otus.yardsportsteamlobby.service.LocalizationService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,17 +22,19 @@ public class EmptyCapacityProcessor implements CreateGameProcessor {
 
     private final KeyBoardService keyBoardService;
 
+    private final LocalizationService localizationService;
+
     @Override
     public SendMessage process(GameCreatingStateWithRequest gameData, Long chatId, String text, Long userId) {
         final var response = new SendMessage();
         response.setChatId(chatId.toString());
         if (!StringUtils.hasText(text) || !text.matches("\\d{1,2}")) {
-            response.setText("Введите количество игроков в команде (например, 6)");
+            response.setText(localizationService.getLocalizedMessage("enter.message.players-amount"));
         } else {
             final var teamCapacity = Integer.parseInt(text);
             gameData.getCreateGameRequest().setTeamCapacity(teamCapacity);
             gameData.setCreateGameState(EMPTY_TEAM_1_NAME);
-            response.setText("Введите имя команды А или нажмите пропустить (будет выбрано имя по умолчанию)");
+            response.setText(localizationService.getLocalizedMessage("enter.message.team-a-name"));
             response.setReplyMarkup(keyBoardService.createKeyboardMarkup(createSkipButton()));
         }
         return response;
@@ -39,7 +42,7 @@ public class EmptyCapacityProcessor implements CreateGameProcessor {
 
     private ArrayList<List<InlineKeyboardButton>> createSkipButton() {
         final var skipButton = new InlineKeyboardButton();
-        skipButton.setText("Пропустить");
+        skipButton.setText(localizationService.getLocalizedMessage("select.skip"));
         skipButton.setCallbackData(CallbackQuerySelect.SKIP.name());
         final var keyboardButtonsRow1 = new ArrayList<InlineKeyboardButton>();
         keyboardButtonsRow1.add(skipButton);

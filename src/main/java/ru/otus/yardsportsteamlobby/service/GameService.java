@@ -37,9 +37,11 @@ public class GameService {
 
     private final CreateGameCache createGameCache;
 
-    private final SignUpForGameCache signUpForGameCache;
-
     private final KeyBoardService keyBoardService;
+
+    private final LocalizationService localizationService;
+
+    private final SignUpForGameCache signUpForGameCache;
 
     private final YardSportsTeamLobbyClient yardSportsTeamLobbyClient;
 
@@ -58,7 +60,7 @@ public class GameService {
                     .setCreateGameRequest(new CreateGameRequest()));
             final var daysOfMonthList = calendarService.fillDaysOfMonth(LocalDate.now().getMonth());
             response.setReplyMarkup(keyBoardService.createKeyboardMarkup(daysOfMonthList));
-            response.setText("Выберите дату");
+            response.setText(localizationService.getLocalizedMessage("one-way.message.select-date"));
         }
         return response;
     }
@@ -71,23 +73,23 @@ public class GameService {
         final var responseEntity = yardSportsTeamLobbyClient.signUpForGameRequest(selectedGameId, selectedTeamId, userId);
         final var responseStatus = responseEntity.getStatusCode();
         if (responseStatus == HttpStatus.ALREADY_REPORTED) {
-            response.setText("Выбранная команда полностью укомплектована, выберите другую");
+            response.setText(localizationService.getLocalizedMessage("one-way.message.select-other-team"));
             response.setReplyMarkup(getTeamRosters(chatId, userId, CallbackQuerySelect.SELECTED_GAME_.name() + selectedGameId).getReplyMarkup());
         } else if (responseStatus == HttpStatus.NO_CONTENT) {
-            response.setText("В командах нет места");
+            response.setText(localizationService.getLocalizedMessage("one-way.message.teams-full"));
+        } else if (responseStatus == HttpStatus.MULTI_STATUS) {
+            response.setText(localizationService.getLocalizedMessage("one-way.message.who-are-you"));
+            response.setReplyMarkup(keyBoardService.createMainMenuKeyboard());
         } else if (responseStatus == HttpStatus.OK) {
             final var afterSelectionGame = Optional.of(responseEntity)
                     .map(HttpEntity::getBody)
                     .orElseThrow();
-            final var responseText = new StringBuilder("Ура! Вы в игре!\n");
-            responseText
-                    .append(
-                            teamsRosterText(afterSelectionGame.getTeamA().getTeamName(), afterSelectionGame.getTeamCapacity(),
-                                    afterSelectionGame.getTeamA().getLineUp()))
-                    .append('\n')
-                    .append(teamsRosterText(afterSelectionGame.getTeamB().getTeamName(), afterSelectionGame.getTeamCapacity(),
-                            afterSelectionGame.getTeamB().getLineUp()));
-            response.setText(responseText.toString());
+            final var responseText = localizationService.getLocalizedMessage("one-way.message.you-are-in") +
+                    teamsRosterText(afterSelectionGame.getTeamA().getTeamName(), afterSelectionGame.getTeamCapacity(),
+                            afterSelectionGame.getTeamA().getLineUp()) + '\n' +
+                    teamsRosterText(afterSelectionGame.getTeamB().getTeamName(), afterSelectionGame.getTeamCapacity(),
+                            afterSelectionGame.getTeamB().getLineUp());
+            response.setText(responseText);
             response.setReplyMarkup(keyBoardService.createMainMenuKeyboard());
             signUpForGameCache.removeData(userId);
         }
@@ -97,7 +99,7 @@ public class GameService {
     public SendMessage getTeamRosters(Long chatId, Long userId, String text) {
         final var response = new SendMessage();
         response.setChatId(chatId.toString());
-        response.setText("Выберите команду:");
+        response.setText(localizationService.getLocalizedMessage("one-way.message.select-team"));
         final var gameId = Long.parseLong(text.replace(CallbackQuerySelect.SELECTED_GAME_.name(), ""));
         signUpForGameCache.getData(userId).setSelectedGameId(gameId);
         final var signUpData = signUpForGameCache.getData(userId);
@@ -128,11 +130,11 @@ public class GameService {
         final var lastGames = listGameResponse.getGames();
 
         if (CollectionUtils.isEmpty(lastGames)) {
-            response.setText("Игр пока что не было и не запланировано.");
+            response.setText(localizationService.getLocalizedMessage("one-way.message.no-games"));
         } else {
             final var gameList = createGameButtonsList(lastGames);
             signUpForGameCache.addData(userId, new SignUpDto().setLastGames(lastGames));
-            response.setText("Выберите игру:");
+            response.setText(localizationService.getLocalizedMessage("one-way.message.select-game"));
             response.setReplyMarkup(keyBoardService.createKeyboardMarkup(gameList));
         }
         return response;

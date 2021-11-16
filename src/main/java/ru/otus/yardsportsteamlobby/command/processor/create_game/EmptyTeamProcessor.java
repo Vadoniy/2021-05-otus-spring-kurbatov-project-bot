@@ -10,6 +10,7 @@ import ru.otus.yardsportsteamlobby.command.processor.CreateGameProcessor;
 import ru.otus.yardsportsteamlobby.dto.GameCreatingStateWithRequest;
 import ru.otus.yardsportsteamlobby.enums.CallbackQuerySelect;
 import ru.otus.yardsportsteamlobby.service.KeyBoardService;
+import ru.otus.yardsportsteamlobby.service.LocalizationService;
 import ru.otus.yardsportsteamlobby.service.cache.CreateGameCache;
 
 import java.util.ArrayList;
@@ -26,6 +27,8 @@ public class EmptyTeamProcessor implements CreateGameProcessor {
 
     private final KeyBoardService keyBoardService;
 
+    private final LocalizationService localizationService;
+
     private final YardSportsTeamLobbyClient yardSportsTeamLobbyClient;
 
     @Override
@@ -38,14 +41,14 @@ public class EmptyTeamProcessor implements CreateGameProcessor {
                 gameData.getCreateGameRequest().setTeamNameA(text);
             }
             gameData.setCreateGameState(EMPTY_TEAM_2_NAME);
-            response.setText("Введите имя команды Б или нажмите пропустить (будет выбрано имя по умолчанию)");
+            response.setText(localizationService.getLocalizedMessage("enter.message.team-b-name"));
             response.setReplyMarkup(keyBoardService.createKeyboardMarkup(createSkipButton()));
         } else {
             if (StringUtils.hasText(text) && !CallbackQuerySelect.SKIP.name().equals(text)) {
                 gameData.getCreateGameRequest().setTeamNameB(text);
             }
             final var apiResponse = yardSportsTeamLobbyClient.sendCreateGameRequest(gameData.getCreateGameRequest());
-            response.setText("Запрос на создание отправлен");
+            response.setText(localizationService.getLocalizedMessage("one-way.message.request-is-sent"));
             if (StringUtils.hasText(apiResponse)) {
                 createGameCache.removeData(userId);
             }
@@ -56,7 +59,7 @@ public class EmptyTeamProcessor implements CreateGameProcessor {
 
     private ArrayList<List<InlineKeyboardButton>> createSkipButton() {
         final var skipButton = new InlineKeyboardButton();
-        skipButton.setText("Пропустить");
+        skipButton.setText(localizationService.getLocalizedMessage("select.skip"));
         skipButton.setCallbackData(CallbackQuerySelect.SKIP.name());
         final var keyboardButtonsRow1 = new ArrayList<InlineKeyboardButton>();
         keyboardButtonsRow1.add(skipButton);

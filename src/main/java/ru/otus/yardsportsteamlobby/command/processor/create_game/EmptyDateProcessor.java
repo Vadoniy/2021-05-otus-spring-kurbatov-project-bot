@@ -9,6 +9,7 @@ import ru.otus.yardsportsteamlobby.dto.GameCreatingStateWithRequest;
 import ru.otus.yardsportsteamlobby.enums.CallbackQuerySelect;
 import ru.otus.yardsportsteamlobby.service.CalendarService;
 import ru.otus.yardsportsteamlobby.service.KeyBoardService;
+import ru.otus.yardsportsteamlobby.service.LocalizationService;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -23,6 +24,8 @@ public class EmptyDateProcessor implements CreateGameProcessor {
 
     private final KeyBoardService keyBoardService;
 
+    private final LocalizationService localizationService;
+
     @Override
     public SendMessage process(GameCreatingStateWithRequest gameData, Long chatId, String text, Long userId) {
         final var response = new SendMessage();
@@ -30,14 +33,14 @@ public class EmptyDateProcessor implements CreateGameProcessor {
         if (StringUtils.hasText(text) && text.startsWith(CallbackQuerySelect.SELECTED_MONTH_.name())) {
             final var daysOfMonthList = calendarService.fillDaysOfMonth(Month.valueOf(text.replace(CallbackQuerySelect.SELECTED_MONTH_.name(), "")));
             response.setReplyMarkup(keyBoardService.createKeyboardMarkup(daysOfMonthList));
-            response.setText("Выберите дату");
+            response.setText(localizationService.getLocalizedMessage("one-way.message.select-date"));
             return response;
         }
         final var request = gameData.getCreateGameRequest();
         final var gameDateTime = LocalDate.parse(text.replace(CallbackQuerySelect.SELECTED_DATE_.name(), "")).atStartOfDay();
         request.setGameDateTime(gameDateTime);
         gameData.setCreateGameState(EMPTY_TIME);
-        response.setText("Укажите время игры в формате HH:mm (например, 21:15).");
+        response.setText(localizationService.getLocalizedMessage("enter.message.game-time"));
         return response;
     }
 }

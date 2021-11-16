@@ -34,7 +34,7 @@ public class CalendarService {
             keyBoardList.add(List.of(monthButton));
         }
         sendMessage.setReplyMarkup(keyBoardService.createKeyboardMarkup(keyBoardList));
-        sendMessage.setText(localizationService.getLocalizedMessage("select.month"));
+        sendMessage.setText(localizationService.getLocalizedMessage("one-way.message.select-month"));
         return sendMessage;
     }
 

@@ -6,6 +6,7 @@ import org.springframework.util.StringUtils;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import ru.otus.yardsportsteamlobby.command.processor.CreateGameProcessor;
 import ru.otus.yardsportsteamlobby.dto.GameCreatingStateWithRequest;
+import ru.otus.yardsportsteamlobby.service.LocalizationService;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -16,19 +17,22 @@ import static ru.otus.yardsportsteamlobby.enums.CreateGameState.EMPTY_CAPACITY;
 @RequiredArgsConstructor
 public class EmptyTimeProcessor implements CreateGameProcessor {
 
+    private final LocalizationService localizationService;
+
     @Override
     public SendMessage process(GameCreatingStateWithRequest gameData, Long chatId, String text, Long userId) {
         final var response = new SendMessage();
         response.setChatId(chatId.toString());
         if (!isTimeInputOk(text)) {
-            response.setText("Неправильный формат времени, укажите время игры в формате HH:mm (например, 09:15 или 21:15).");
+            response.setText(localizationService.getLocalizedMessage("enter.message.wrong-time"));
         } else {
             final var gameTime = LocalTime.parse(text);
             final var gameDate = gameData.getCreateGameRequest().getGameDateTime().toLocalDate();
             final var gameDateTime = LocalDateTime.of(gameDate, gameTime);
             gameData.getCreateGameRequest().setGameDateTime(gameDateTime);
             gameData.setCreateGameState(EMPTY_CAPACITY);
-            response.setText("Введите количество игроков в команде (например, 6)");
+            response.setText("enter.message.players-amount");
+            response.setText(localizationService.getLocalizedMessage("enter.message.wrong-time"));
         }
         return response;
     }
