@@ -7,5 +7,5 @@ import javax.validation.constraints.NotNull;
 
 public interface MainMenuProcessor {
 
-    SendMessage process(@NotNull Long chatId, @NotNull Long userId, @NotBlank String text);
+    SendMessage process(@NotNull Long chatId, @NotNull Long userId, @NotBlank String text, String userRole);
 }

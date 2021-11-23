@@ -13,7 +13,7 @@ public class SelectPositionProcessor implements CallbackQueryProcessor {
     private final PlayerService playerService;
 
     @Override
-    public SendMessage process(Long chatId, Long userId, String text) {
+    public SendMessage process(Long chatId, Long userId, String text, String userRole) {
         return playerService.registerPlayer(chatId, userId, text);
     }
 }

@@ -16,7 +16,7 @@ public class MainMenuCreateGameProcessor implements MainMenuProcessor {
     private final GameService gameService;
 
     @Override
-    public SendMessage process(@NotNull Long chatId, @NotNull Long userId, @NotBlank String text) {
-        return gameService.createGame(chatId, userId, text);
+    public SendMessage process(@NotNull Long chatId, @NotNull Long userId, @NotBlank String text, String userRole) {
+        return gameService.createGame(chatId, userId, text, userRole);
     }
 }

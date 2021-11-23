@@ -11,6 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import ru.otus.yardsportsteamlobby.enums.CallbackQuerySelect;
 import ru.otus.yardsportsteamlobby.enums.MainMenuSelect;
+import ru.otus.yardsportsteamlobby.enums.UserRole;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,32 +62,38 @@ public class KeyBoardService {
         return inlineKeyboardMarkup;
     }
 
-    public ReplyKeyboardMarkup createMainMenuKeyboard() {
+    public ReplyKeyboardMarkup createMainMenuKeyboard(String userRole) {
         final var replyKeyboardMarkup = new ReplyKeyboardMarkup();
         replyKeyboardMarkup.setSelective(true);
         replyKeyboardMarkup.setResizeKeyboard(true);
         replyKeyboardMarkup.setOneTimeKeyboard(false);
         final var keyboard = new ArrayList<KeyboardRow>();
         final var row1 = new KeyboardRow();
-        final var row2 = new KeyboardRow();
-        final var row3 = new KeyboardRow();
-        final var row4 = new KeyboardRow();
         row1.add(new KeyboardButton(localizationService.getLocalizedMessage(MainMenuSelect.REGISTER.getMessage())));
-        row2.add(new KeyboardButton(localizationService.getLocalizedMessage(MainMenuSelect.SIGN_UP_FOR_GAME.getMessage())));
-        row3.add(new KeyboardButton(localizationService.getLocalizedMessage(MainMenuSelect.CREATE_GAME.getMessage())));
-        row4.add(new KeyboardButton(localizationService.getLocalizedMessage(MainMenuSelect.DELETE_PLAYER.getMessage())));
         keyboard.add(row1);
-        keyboard.add(row2);
-        keyboard.add(row3);
-        keyboard.add(row4);
+        if (UserRole.USER.name().equals(userRole) || UserRole.ADMIN.name().equals(userRole)) {
+            final var row2 = new KeyboardRow();
+            row2.add(new KeyboardButton(localizationService.getLocalizedMessage(MainMenuSelect.SIGN_UP_FOR_GAME.getMessage())));
+            keyboard.add(row2);
+        }
+        if (UserRole.USER.name().equals(userRole)) {
+            final var row3 = new KeyboardRow();
+            row3.add(new KeyboardButton(localizationService.getLocalizedMessage(MainMenuSelect.DELETE_PLAYER.getMessage())));
+            keyboard.add(row3);
+        }
+        if (UserRole.ADMIN.name().equals(userRole)) {
+            final var row4 = new KeyboardRow();
+            row4.add(new KeyboardButton(localizationService.getLocalizedMessage(MainMenuSelect.CREATE_GAME.getMessage())));
+            keyboard.add(row4);
+        }
         replyKeyboardMarkup.setKeyboard(keyboard);
         replyKeyboardMarkup.setOneTimeKeyboard(true);
         return replyKeyboardMarkup;
     }
 
-    public SendMessage createMainMenuKeyboardMessage(long chatId) {
+    public SendMessage createMainMenuKeyboardMessage(long chatId, String userRole) {
         final var textMessage = localizationService.getLocalizedMessage("main.menu.greetings");
-        return createKeyboardMessage(chatId, textMessage, createMainMenuKeyboard());
+        return createKeyboardMessage(chatId, textMessage, createMainMenuKeyboard(userRole));
     }
 
     public SendMessage createKeyboardMessage(long chatId, String textMessage, ReplyKeyboard keyboardMarkup) {

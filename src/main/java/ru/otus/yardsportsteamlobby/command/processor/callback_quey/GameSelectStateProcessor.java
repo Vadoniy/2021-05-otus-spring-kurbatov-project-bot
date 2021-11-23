@@ -13,7 +13,7 @@ public class GameSelectStateProcessor implements CallbackQueryProcessor {
     private final GameService gameService;
 
     @Override
-    public SendMessage process(Long chatId, Long userId, String text) {
+    public SendMessage process(Long chatId, Long userId, String text, String userRole) {
         return gameService.getTeamRosters(chatId, userId, text);
     }
 }

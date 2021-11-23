@@ -31,7 +31,7 @@ public class SignUpForGameCache implements Cache<SignUpDto> {
     }
 
     @Scheduled(cron = "0 0 4 * * *")
-    private void dropSignUpForGameCache() {
+    public void dropCache() {
         signUpForGameCache = new HashMap<>();
     }
 }

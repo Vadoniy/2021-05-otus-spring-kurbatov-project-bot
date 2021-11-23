@@ -16,7 +16,7 @@ public class MainMenuDeletePlayerProcessor implements MainMenuProcessor {
     private final PlayerService playerService;
 
     @Override
-    public SendMessage process(@NotNull Long chatId, @NotNull Long userId, @NotBlank String text) {
+    public SendMessage process(@NotNull Long chatId, @NotNull Long userId, @NotBlank String text, String userRole) {
         return playerService.deletePlayer(chatId, userId, text);
     }
 }

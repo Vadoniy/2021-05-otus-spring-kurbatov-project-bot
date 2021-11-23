@@ -5,5 +5,5 @@ import ru.otus.yardsportsteamlobby.dto.GameCreatingStateWithRequest;
 
 public interface CreateGameProcessor {
 
-    SendMessage process(GameCreatingStateWithRequest gameData, Long chatId, String text, Long userId);
+    SendMessage process(GameCreatingStateWithRequest gameData, Long chatId, String text, Long userId, String userRole);
 }

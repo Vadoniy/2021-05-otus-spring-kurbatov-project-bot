@@ -45,7 +45,7 @@ public class GameService {
 
     private final YardSportsTeamLobbyClient yardSportsTeamLobbyClient;
 
-    public SendMessage createGame(@NotNull Long chatId, @NotNull Long userId, @NotBlank String text) {
+    public SendMessage createGame(@NotNull Long chatId, @NotNull Long userId, @NotBlank String text, String userRole) {
         final var response = new SendMessage();
         response.setChatId(chatId.toString());
 
@@ -53,7 +53,7 @@ public class GameService {
             final var gameData = createGameCache.getData(userId);
             final var createGameState = gameData.getCreateGameState();
             final var processorClazz = CreateGameState.valueOf(createGameState.name()).getProcessor();
-            return processAlreadyExistData(chatId, userId, text, processorClazz, gameData);
+            return processAlreadyExistData(chatId, userId, text, processorClazz, gameData, userRole);
         } else {
             createGameCache.addData(userId, new GameCreatingStateWithRequest()
                     .setCreateGameState(EMPTY_DATE)
@@ -65,7 +65,7 @@ public class GameService {
         return response;
     }
 
-    public SendMessage signUpForGame(Long chatId, Long userId, String text) {
+    public SendMessage signUpForGame(Long chatId, Long userId, String text, String userRole) {
         final var response = new SendMessage();
         response.setChatId(chatId.toString());
         final var selectedGameId = signUpForGameCache.getData(userId).getSelectedGameId();
@@ -79,7 +79,7 @@ public class GameService {
             response.setText(localizationService.getLocalizedMessage("one-way.message.teams-full"));
         } else if (responseStatus == HttpStatus.MULTI_STATUS) {
             response.setText(localizationService.getLocalizedMessage("one-way.message.who-are-you"));
-            response.setReplyMarkup(keyBoardService.createMainMenuKeyboard());
+            response.setReplyMarkup(keyBoardService.createMainMenuKeyboard(userRole));
         } else if (responseStatus == HttpStatus.OK) {
             final var afterSelectionGame = Optional.of(responseEntity)
                     .map(HttpEntity::getBody)
@@ -90,7 +90,7 @@ public class GameService {
                     teamsRosterText(afterSelectionGame.getTeamB().getTeamName(), afterSelectionGame.getTeamCapacity(),
                             afterSelectionGame.getTeamB().getLineUp());
             response.setText(responseText);
-            response.setReplyMarkup(keyBoardService.createMainMenuKeyboard());
+            response.setReplyMarkup(keyBoardService.createMainMenuKeyboard(userRole));
             signUpForGameCache.removeData(userId);
         }
         return response;
@@ -142,9 +142,10 @@ public class GameService {
 
     private SendMessage processAlreadyExistData(Long chatId, Long userId, String text,
                                                 Class<? extends CreateGameProcessor> createGameProcessor,
-                                                GameCreatingStateWithRequest gameCreatingStateWithRequest) {
+                                                GameCreatingStateWithRequest gameCreatingStateWithRequest,
+                                                String userRole) {
         final var processor = context.getBean(createGameProcessor);
-        return processor.process(gameCreatingStateWithRequest, chatId, text, userId);
+        return processor.process(gameCreatingStateWithRequest, chatId, text, userId, userRole);
     }
 
     private ArrayList<List<InlineKeyboardButton>> createRosterButtons(GameDto gameDto) {

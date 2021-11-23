@@ -40,12 +40,8 @@ public class YardSportsTeamLobbyWebhookBot extends TelegramWebhookBot {
     }
 
     @Override
-    public void onRegister() {
-
-    }
-
-    @Override
     public BotApiMethod<?> onWebhookUpdateReceived(Update update) {
+
         if (update.hasCallbackQuery()) {
             final var from = Optional.ofNullable(update.getCallbackQuery())
                     .map(CallbackQuery::getFrom)

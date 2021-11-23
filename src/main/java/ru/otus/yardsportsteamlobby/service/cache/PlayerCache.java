@@ -31,7 +31,7 @@ public class PlayerCache implements Cache<RegistrationStateWithRequest> {
     }
 
     @Scheduled(cron = "0 0 4 * * *")
-    private void dropPlayerCache() {
+    public void dropCache() {
         playerCache = new HashMap<>();
     }
 }

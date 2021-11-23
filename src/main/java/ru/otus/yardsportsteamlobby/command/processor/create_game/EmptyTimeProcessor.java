@@ -20,7 +20,7 @@ public class EmptyTimeProcessor implements CreateGameProcessor {
     private final LocalizationService localizationService;
 
     @Override
-    public SendMessage process(GameCreatingStateWithRequest gameData, Long chatId, String text, Long userId) {
+    public SendMessage process(GameCreatingStateWithRequest gameData, Long chatId, String text, Long userId, String userRole) {
         final var response = new SendMessage();
         response.setChatId(chatId.toString());
         if (!isTimeInputOk(text)) {
@@ -31,8 +31,7 @@ public class EmptyTimeProcessor implements CreateGameProcessor {
             final var gameDateTime = LocalDateTime.of(gameDate, gameTime);
             gameData.getCreateGameRequest().setGameDateTime(gameDateTime);
             gameData.setCreateGameState(EMPTY_CAPACITY);
-            response.setText("enter.message.players-amount");
-            response.setText(localizationService.getLocalizedMessage("enter.message.wrong-time"));
+            response.setText(localizationService.getLocalizedMessage("enter.message.players-amount"));
         }
         return response;
     }

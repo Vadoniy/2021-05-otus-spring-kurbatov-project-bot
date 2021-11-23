@@ -1,7 +1,5 @@
 package ru.otus.yardsportsteamlobby.service.cache;
 
-import ru.otus.yardsportsteamlobby.dto.GameCreatingStateWithRequest;
-
 public interface Cache<T> {
 
     T getData(Long userId);
@@ -11,4 +9,6 @@ public interface Cache<T> {
     T removeData(Long userId);
 
     boolean isDataAlreadyExists(Long userId);
+
+    void dropCache();
 }

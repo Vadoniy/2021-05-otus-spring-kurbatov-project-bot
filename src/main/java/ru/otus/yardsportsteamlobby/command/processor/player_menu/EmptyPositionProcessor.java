@@ -1,8 +1,9 @@
 package ru.otus.yardsportsteamlobby.command.processor.player_menu;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
+import org.springframework.web.client.HttpClientErrorException;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import ru.otus.yardsportsteamlobby.client.YardSportsTeamLobbyClient;
 import ru.otus.yardsportsteamlobby.command.processor.PlayerMenuProcessor;
@@ -11,6 +12,8 @@ import ru.otus.yardsportsteamlobby.enums.CallbackQuerySelect;
 import ru.otus.yardsportsteamlobby.service.KeyBoardService;
 import ru.otus.yardsportsteamlobby.service.LocalizationService;
 import ru.otus.yardsportsteamlobby.service.cache.PlayerCache;
+
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -30,13 +33,18 @@ public class EmptyPositionProcessor implements PlayerMenuProcessor {
         response.setChatId(chatId.toString());
         userData.getCreatePlayerRequest().setPosition(CallbackQuerySelect.valueOf(text));
         userData.getCreatePlayerRequest().setUserId(userId);
-        final var apiResponse = yardSportsTeamLobbyClient.sendCreatePlayerRequest(userData.getCreatePlayerRequest());
-        response.setText(localizationService.getLocalizedMessage("one-way.message.request-is-sent"));
-        if (StringUtils.hasText(apiResponse)) {
-            response.setText(apiResponse);
+        try {
+            yardSportsTeamLobbyClient.sendCreatePlayerRequest(userData.getCreatePlayerRequest());
+            response.setText(localizationService.getLocalizedMessage("one-way.message.request-is-sent"));
+            final var newUserRole = Optional.ofNullable(yardSportsTeamLobbyClient.getUsersRoleByUserId(userId))
+                    .map(ResponseEntity::getBody)
+                    .orElse("");
+            response.setReplyMarkup(keyBoardService.createMainMenuKeyboard(newUserRole));
+        } catch (HttpClientErrorException ex) {
+            response.setText(localizationService.getLocalizedMessage("one-way.message.smth-is-wrong"));
+        } finally {
             playerCache.removeData(userId);
         }
-        response.setReplyMarkup(keyBoardService.createMainMenuKeyboard());
         return response;
     }
 }

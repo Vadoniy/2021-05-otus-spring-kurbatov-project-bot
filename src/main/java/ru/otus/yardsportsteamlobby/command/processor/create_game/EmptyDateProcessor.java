@@ -27,7 +27,7 @@ public class EmptyDateProcessor implements CreateGameProcessor {
     private final LocalizationService localizationService;
 
     @Override
-    public SendMessage process(GameCreatingStateWithRequest gameData, Long chatId, String text, Long userId) {
+    public SendMessage process(GameCreatingStateWithRequest gameData, Long chatId, String text, Long userId, String userRole) {
         final var response = new SendMessage();
         response.setChatId(chatId.toString());
         if (StringUtils.hasText(text) && text.startsWith(CallbackQuerySelect.SELECTED_MONTH_.name())) {

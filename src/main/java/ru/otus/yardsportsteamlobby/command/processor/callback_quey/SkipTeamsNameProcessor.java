@@ -13,7 +13,7 @@ public class SkipTeamsNameProcessor implements CallbackQueryProcessor {
     private final GameService gameService;
 
     @Override
-    public SendMessage process(Long chatId, Long userId, String text) {
-        return gameService.createGame(chatId, userId, text);
+    public SendMessage process(Long chatId, Long userId, String text, String userRole) {
+        return gameService.createGame(chatId, userId, text, userRole);
     }
 }

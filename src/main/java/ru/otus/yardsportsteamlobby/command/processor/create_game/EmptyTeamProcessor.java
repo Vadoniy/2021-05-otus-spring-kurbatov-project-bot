@@ -1,6 +1,7 @@
 package ru.otus.yardsportsteamlobby.command.processor.create_game;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -21,6 +22,7 @@ import static ru.otus.yardsportsteamlobby.enums.CreateGameState.EMPTY_TEAM_2_NAM
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class EmptyTeamProcessor implements CreateGameProcessor {
 
     private final CreateGameCache createGameCache;
@@ -32,7 +34,7 @@ public class EmptyTeamProcessor implements CreateGameProcessor {
     private final YardSportsTeamLobbyClient yardSportsTeamLobbyClient;
 
     @Override
-    public SendMessage process(GameCreatingStateWithRequest gameData, Long chatId, String text, Long userId) {
+    public SendMessage process(GameCreatingStateWithRequest gameData, Long chatId, String text, Long userId, String userRole) {
         final var response = new SendMessage();
         response.setChatId(chatId.toString());
 
@@ -47,12 +49,16 @@ public class EmptyTeamProcessor implements CreateGameProcessor {
             if (StringUtils.hasText(text) && !CallbackQuerySelect.SKIP.name().equals(text)) {
                 gameData.getCreateGameRequest().setTeamNameB(text);
             }
-            final var apiResponse = yardSportsTeamLobbyClient.sendCreateGameRequest(gameData.getCreateGameRequest());
-            response.setText(localizationService.getLocalizedMessage("one-way.message.request-is-sent"));
-            if (StringUtils.hasText(apiResponse)) {
+            try {
+                yardSportsTeamLobbyClient.sendCreateGameRequest(gameData.getCreateGameRequest(), userId);
+                response.setText(localizationService.getLocalizedMessage("one-way.message.request-is-sent"));
+            } catch (Exception e) {
+                log.info(e.getMessage());
+                response.setText(localizationService.getLocalizedMessage("one-way.message.smth-is-wrong"));
+                response.setReplyMarkup(keyBoardService.createMainMenuKeyboard(userRole));
+            } finally {
                 createGameCache.removeData(userId);
             }
-            response.setReplyMarkup(keyBoardService.createMainMenuKeyboard());
         }
         return response;
     }

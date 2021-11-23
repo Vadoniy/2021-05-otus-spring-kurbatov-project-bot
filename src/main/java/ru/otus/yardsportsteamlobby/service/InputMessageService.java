@@ -3,16 +3,19 @@ package ru.otus.yardsportsteamlobby.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import ru.otus.yardsportsteamlobby.client.YardSportsTeamLobbyClient;
 import ru.otus.yardsportsteamlobby.enums.CallbackQuerySelect;
 import ru.otus.yardsportsteamlobby.enums.MainMenuSelect;
 import ru.otus.yardsportsteamlobby.service.cache.CreateGameCache;
 import ru.otus.yardsportsteamlobby.service.cache.PlayerCache;
 
 import javax.validation.constraints.NotNull;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @Service
@@ -32,13 +35,18 @@ public class InputMessageService {
 
     private final PlayerCache playerCache;
 
+    private final YardSportsTeamLobbyClient yardSportsTeamLobbyClient;
+
     public SendMessage processInputMessage(@NotNull Message message) {
         final var chatId = message.getChatId();
         final var userId = message.getFrom().getId();
         final var text = message.getText();
+        final var usersRole = Optional.ofNullable(yardSportsTeamLobbyClient.getUsersRoleByUserId(userId))
+                .map(ResponseEntity::getBody)
+                .orElse("");
 
         if (isGameDateTime(text) || createGameCache.isDataAlreadyExists(userId)) {
-            return gameService.createGame(chatId, userId, text);
+            return gameService.createGame(chatId, userId, text, usersRole);
         } else if (playerCache.isDataAlreadyExists(userId)) {
             return playerService.registerPlayer(chatId, userId, message.getText());
         }
@@ -49,7 +57,7 @@ public class InputMessageService {
                 .orElse(MainMenuSelect.START)
                 .getProcessor();
         final var processor = context.getBean(processorClazz);
-        return processor.process(chatId, userId, text);
+        return processor.process(chatId, userId, text, usersRole);
     }
 
     private boolean isGameDateTime(String text) {

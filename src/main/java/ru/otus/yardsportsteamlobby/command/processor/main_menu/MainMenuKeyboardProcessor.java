@@ -16,7 +16,7 @@ public class MainMenuKeyboardProcessor implements MainMenuProcessor {
     private final KeyBoardService keyBoardService;
 
     @Override
-    public SendMessage process(@NotNull Long chatId, @NotNull Long userId, @NotBlank String text) {
-        return keyBoardService.createMainMenuKeyboardMessage(chatId);
+    public SendMessage process(@NotNull Long chatId, @NotNull Long userId, @NotBlank String text, String userRole) {
+        return keyBoardService.createMainMenuKeyboardMessage(chatId, userRole);
     }
 }

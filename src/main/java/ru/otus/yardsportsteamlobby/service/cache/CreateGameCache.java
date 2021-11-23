@@ -31,7 +31,7 @@ public class CreateGameCache implements Cache<GameCreatingStateWithRequest> {
     }
 
     @Scheduled(cron = "0 0 4 * * *")
-    private void dropCreateGameCache() {
+    public void dropCache() {
         createGameCache = new HashMap<>();
     }
 }

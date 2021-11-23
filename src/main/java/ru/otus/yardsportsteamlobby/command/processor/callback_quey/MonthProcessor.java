@@ -13,7 +13,7 @@ public class MonthProcessor implements CallbackQueryProcessor {
     private final CalendarService calendarService;
 
     @Override
-    public SendMessage process(Long chatId, Long userId, String text) {
+    public SendMessage process(Long chatId, Long userId, String text, String userRole) {
         return calendarService.createMonthKeyboard(chatId);
     }
 }

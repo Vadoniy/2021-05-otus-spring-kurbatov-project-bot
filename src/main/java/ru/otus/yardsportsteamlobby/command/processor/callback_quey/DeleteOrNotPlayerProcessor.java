@@ -13,7 +13,7 @@ public class DeleteOrNotPlayerProcessor implements CallbackQueryProcessor {
     private final PlayerService playerService;
 
     @Override
-    public SendMessage process(Long chatId, Long userId, String text) {
+    public SendMessage process(Long chatId, Long userId, String text, String userRole) {
         return playerService.deletePlayer(chatId, userId, text);
     }
 }
