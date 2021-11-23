@@ -84,7 +84,7 @@ public class GameService {
             final var afterSelectionGame = Optional.of(responseEntity)
                     .map(HttpEntity::getBody)
                     .orElseThrow();
-            final var responseText = localizationService.getLocalizedMessage("one-way.message.you-are-in") +
+            final var responseText = localizationService.getLocalizedMessage("one-way.message.you-are-in") + '\n' +
                     teamsRosterText(afterSelectionGame.getTeamA().getTeamName(), afterSelectionGame.getTeamCapacity(),
                             afterSelectionGame.getTeamA().getLineUp()) + '\n' +
                     teamsRosterText(afterSelectionGame.getTeamB().getTeamName(), afterSelectionGame.getTeamCapacity(),
@@ -122,7 +122,7 @@ public class GameService {
         return response;
     }
 
-    public SendMessage getGameList(Long chatId, Long userId) {
+    public SendMessage getGameList(Long chatId, Long userId, String userRole) {
         final var response = new SendMessage();
         response.setChatId(chatId.toString());
 
@@ -131,6 +131,7 @@ public class GameService {
 
         if (CollectionUtils.isEmpty(lastGames)) {
             response.setText(localizationService.getLocalizedMessage("one-way.message.no-games"));
+            response.setReplyMarkup(keyBoardService.createMainMenuKeyboard(userRole));
         } else {
             final var gameList = createGameButtonsList(lastGames);
             signUpForGameCache.addData(userId, new SignUpDto().setLastGames(lastGames));

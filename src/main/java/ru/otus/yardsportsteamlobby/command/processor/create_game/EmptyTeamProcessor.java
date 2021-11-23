@@ -55,9 +55,9 @@ public class EmptyTeamProcessor implements CreateGameProcessor {
             } catch (Exception e) {
                 log.info(e.getMessage());
                 response.setText(localizationService.getLocalizedMessage("one-way.message.smth-is-wrong"));
-                response.setReplyMarkup(keyBoardService.createMainMenuKeyboard(userRole));
             } finally {
                 createGameCache.removeData(userId);
+                response.setReplyMarkup(keyBoardService.createMainMenuKeyboard(userRole));
             }
         }
         return response;

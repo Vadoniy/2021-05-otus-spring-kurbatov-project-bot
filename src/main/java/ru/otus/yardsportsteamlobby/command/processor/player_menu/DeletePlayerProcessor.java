@@ -8,6 +8,7 @@ import ru.otus.yardsportsteamlobby.command.processor.PlayerMenuProcessor;
 import ru.otus.yardsportsteamlobby.dto.RegistrationStateWithRequest;
 import ru.otus.yardsportsteamlobby.enums.CallbackQuerySelect;
 import ru.otus.yardsportsteamlobby.enums.PlayerRegistrationState;
+import ru.otus.yardsportsteamlobby.enums.UserRole;
 import ru.otus.yardsportsteamlobby.service.KeyBoardService;
 import ru.otus.yardsportsteamlobby.service.LocalizationService;
 import ru.otus.yardsportsteamlobby.service.cache.PlayerCache;
@@ -36,6 +37,7 @@ public class DeletePlayerProcessor implements PlayerMenuProcessor {
                 response.setText(localizationService.getLocalizedMessage("one-way.message.request-is-deleted"));
             }
             playerCache.removeData(userId);
+            response.setReplyMarkup(keyBoardService.createMainMenuKeyboard(UserRole.NEW.name()));
         } else {
             final var registrationStateWithRequest = new RegistrationStateWithRequest()
                     .setPlayerRegistrationState(PlayerRegistrationState.DELETE);

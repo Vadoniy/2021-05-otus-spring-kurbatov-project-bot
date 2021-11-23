@@ -17,6 +17,6 @@ public class SignUpForGameProcessor implements MainMenuProcessor {
 
     @Override
     public SendMessage process(@NotNull Long chatId, @NotNull Long userId, @NotBlank String text, String userRole) {
-        return gameService.getGameList(chatId, userId);
+        return gameService.getGameList(chatId, userId, userRole);
     }
 }

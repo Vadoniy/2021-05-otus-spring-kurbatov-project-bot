@@ -1,10 +1,7 @@
 package ru.otus.yardsportsteamlobby.client;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import ru.otus.yardsportsteamlobby.dto.CreateGameRequest;
@@ -46,6 +43,7 @@ public class YardSportsTeamLobbyClient {
     public String sendCreateGameRequest(CreateGameRequest createGameRequest, Long userId) {
         final var headers = new HttpHeaders();
         headers.setBasicAuth(userId.toString(), userId.toString());
+        headers.setContentType(MediaType.APPLICATION_JSON);
         final var httpRequestEntity = new HttpEntity<>(createGameRequest, headers);
         return apiRestTemplate.postForObject(NEW_GAME, httpRequestEntity, String.class);
     }
