@@ -34,10 +34,12 @@ public class YardSportsTeamLobbyClient {
         return apiRestTemplate.postForObject(NEW_PLAYER, createPlayerRequest, String.class);
     }
 
-    public void sendDeletePlayerRequest(String userId) {
+    public ResponseEntity<String> sendDeletePlayerRequest(String userId) {
         final var uriVariables = new HashMap<String, String>();
         uriVariables.put("userId", userId);
-        apiRestTemplate.delete(DELETE_PLAYER, uriVariables);
+        final var headers = new HttpHeaders();
+        headers.setBasicAuth(userId, userId);
+        return apiRestTemplate.exchange(DELETE_PLAYER, HttpMethod.DELETE, new HttpEntity<String>(headers), String.class, uriVariables);
     }
 
     public String sendCreateGameRequest(CreateGameRequest createGameRequest, Long userId) {
@@ -48,13 +50,18 @@ public class YardSportsTeamLobbyClient {
         return apiRestTemplate.postForObject(NEW_GAME, httpRequestEntity, String.class);
     }
 
-    public ListGameResponse sendGetGameListRequest(int amountOfGames) {
-        return apiRestTemplate.getForObject(GAME_LIST, ListGameResponse.class, Map.of("amountOfGames", amountOfGames));
+    public ResponseEntity<ListGameResponse> sendGetGameListRequest(Long userId, int amountOfGames) {
+        final var headers = new HttpHeaders();
+        headers.setBasicAuth(userId.toString(), userId.toString());
+        return apiRestTemplate.exchange(GAME_LIST, HttpMethod.GET, new HttpEntity<String>(headers), ListGameResponse.class,
+                Map.of("amountOfGames", amountOfGames));
     }
 
     public ResponseEntity<GameDto> signUpForGameRequest(long gameId, long teamId, long userId) {
         final var mapvars = Map.of("gameId", gameId, "teamId", teamId, "userId", userId);
-        return apiRestTemplate.postForEntity(NEW_GAME_TEAM_PLAYER, null, GameDto.class, mapvars);
+        final var headers = new HttpHeaders();
+        headers.setBasicAuth(String.valueOf(userId), String.valueOf(userId));
+        return apiRestTemplate.exchange(NEW_GAME_TEAM_PLAYER, HttpMethod.POST, new HttpEntity<>(headers), GameDto.class, mapvars);
     }
 
     public ResponseEntity<String> getUsersRoleByUserId(Long userId) {

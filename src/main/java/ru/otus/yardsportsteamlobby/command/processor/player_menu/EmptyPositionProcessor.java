@@ -11,6 +11,7 @@ import ru.otus.yardsportsteamlobby.dto.RegistrationStateWithRequest;
 import ru.otus.yardsportsteamlobby.enums.CallbackQuerySelect;
 import ru.otus.yardsportsteamlobby.service.KeyBoardService;
 import ru.otus.yardsportsteamlobby.service.LocalizationService;
+import ru.otus.yardsportsteamlobby.service.UserRoleService;
 import ru.otus.yardsportsteamlobby.service.cache.PlayerCache;
 
 import java.util.Optional;
@@ -25,6 +26,8 @@ public class EmptyPositionProcessor implements PlayerMenuProcessor {
 
     private final PlayerCache playerCache;
 
+    private final UserRoleService userRoleService;
+
     private final YardSportsTeamLobbyClient yardSportsTeamLobbyClient;
 
     @Override
@@ -34,12 +37,10 @@ public class EmptyPositionProcessor implements PlayerMenuProcessor {
         userData.getCreatePlayerRequest().setPosition(CallbackQuerySelect.valueOf(text));
         userData.getCreatePlayerRequest().setUserId(userId);
         try {
-            yardSportsTeamLobbyClient.sendCreatePlayerRequest(userData.getCreatePlayerRequest());
+            final var savedPlayerRole = yardSportsTeamLobbyClient.sendCreatePlayerRequest(userData.getCreatePlayerRequest());
             response.setText(localizationService.getLocalizedMessage("one-way.message.request-is-sent"));
-            final var newUserRole = Optional.ofNullable(yardSportsTeamLobbyClient.getUsersRoleByUserId(userId))
-                    .map(ResponseEntity::getBody)
-                    .orElse("");
-            response.setReplyMarkup(keyBoardService.createMainMenuKeyboard(newUserRole));
+            userRoleService.updateUsersRole(userId, savedPlayerRole);
+            response.setReplyMarkup(keyBoardService.createMainMenuKeyboard(savedPlayerRole));
         } catch (HttpClientErrorException ex) {
             response.setText(localizationService.getLocalizedMessage("one-way.message.smth-is-wrong"));
         } finally {

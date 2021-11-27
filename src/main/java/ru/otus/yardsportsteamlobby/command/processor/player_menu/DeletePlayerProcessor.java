@@ -11,7 +11,10 @@ import ru.otus.yardsportsteamlobby.enums.PlayerRegistrationState;
 import ru.otus.yardsportsteamlobby.enums.UserRole;
 import ru.otus.yardsportsteamlobby.service.KeyBoardService;
 import ru.otus.yardsportsteamlobby.service.LocalizationService;
+import ru.otus.yardsportsteamlobby.service.UserRoleService;
 import ru.otus.yardsportsteamlobby.service.cache.PlayerCache;
+
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -23,6 +26,8 @@ public class DeletePlayerProcessor implements PlayerMenuProcessor {
 
     private final PlayerCache playerCache;
 
+    private final UserRoleService userRoleService;
+
     private final YardSportsTeamLobbyClient yardSportsTeamLobbyClient;
 
     @Override
@@ -31,13 +36,14 @@ public class DeletePlayerProcessor implements PlayerMenuProcessor {
         response.setChatId(chatId.toString());
         if (PlayerRegistrationState.DELETE == userData.getPlayerRegistrationState()) {
             if (CallbackQuerySelect.SURE_TO_DELETE_PLAYER == CallbackQuerySelect.valueOf(text)) {
-                yardSportsTeamLobbyClient.sendDeletePlayerRequest(userId.toString());
+                final var newRole = yardSportsTeamLobbyClient.sendDeletePlayerRequest(userId.toString());
                 response.setText(localizationService.getLocalizedMessage("one-way.message.request-is-sent"));
+                userRoleService.updateUsersRole(userId, Optional.ofNullable(newRole.getBody()).orElse(UserRole.NEW.name()));
             } else {
                 response.setText(localizationService.getLocalizedMessage("one-way.message.request-is-deleted"));
             }
             playerCache.removeData(userId);
-            response.setReplyMarkup(keyBoardService.createMainMenuKeyboard(UserRole.NEW.name()));
+            response.setReplyMarkup(keyBoardService.createMainMenuKeyboard(userRoleService.getUserRoleByUserId(userId)));
         } else {
             final var registrationStateWithRequest = new RegistrationStateWithRequest()
                     .setPlayerRegistrationState(PlayerRegistrationState.DELETE);

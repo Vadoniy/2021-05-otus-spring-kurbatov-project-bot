@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -126,8 +127,11 @@ public class GameService {
         final var response = new SendMessage();
         response.setChatId(chatId.toString());
 
-        final var listGameResponse = yardSportsTeamLobbyClient.sendGetGameListRequest(3);
-        final var lastGames = listGameResponse.getGames();
+        final var listGameResponse = yardSportsTeamLobbyClient.sendGetGameListRequest(userId, 3);
+        final var lastGames = Optional.of(listGameResponse)
+                .map(ResponseEntity::getBody)
+                .map(ListGameResponse::getGames)
+                .orElse(new ArrayList<>(0));
 
         if (CollectionUtils.isEmpty(lastGames)) {
             response.setText(localizationService.getLocalizedMessage("one-way.message.no-games"));

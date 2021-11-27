@@ -3,11 +3,9 @@ package ru.otus.yardsportsteamlobby.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import ru.otus.yardsportsteamlobby.client.YardSportsTeamLobbyClient;
 import ru.otus.yardsportsteamlobby.command.processor.CallbackQueryProcessor;
 import ru.otus.yardsportsteamlobby.enums.CallbackQuerySelect;
 
@@ -22,15 +20,13 @@ public class CallbackQueryService {
 
     private final KeyBoardService keyBoardService;
 
-    private final YardSportsTeamLobbyClient yardSportsTeamLobbyClient;
+    private final UserRoleService userRoleService;
 
     public BotApiMethod<?> processCallbackQuery(CallbackQuery callbackQueryButton) {
         final var chatId = callbackQueryButton.getMessage().getChatId();
         final var userId = callbackQueryButton.getFrom().getId();
         final var callbackData = callbackQueryButton.getData();
-        final var usersRole = Optional.ofNullable(yardSportsTeamLobbyClient.getUsersRoleByUserId(userId))
-                .map(ResponseEntity::getBody)
-                .orElse("");
+        final var usersRole = userRoleService.getUserRoleByUserId(userId);
 
         return Optional.ofNullable(CallbackQuerySelect.getProcessorByCallbackData(callbackData))
                 .map(processorClazz -> (CallbackQueryProcessor) context.getBean(processorClazz))
