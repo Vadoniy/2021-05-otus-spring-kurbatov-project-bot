@@ -5,14 +5,14 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.otus.yardsportsteamlobby.dto.SignUpDto;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @Getter
 public class SignUpForGameCache implements Cache<SignUpDto> {
 
-    private Map<Long, SignUpDto> signUpForGameCache = new HashMap<>();
+    private Map<Long, SignUpDto> signUpForGameCache = new ConcurrentHashMap<>();
 
     public SignUpDto getData(Long userId) {
         return signUpForGameCache.get(userId);
@@ -32,6 +32,6 @@ public class SignUpForGameCache implements Cache<SignUpDto> {
 
     @Scheduled(cron = "0 0 4 * * *")
     public void dropCache() {
-        signUpForGameCache = new HashMap<>();
+        signUpForGameCache = new ConcurrentHashMap<>();
     }
 }

@@ -4,14 +4,14 @@ import lombok.Getter;
 import org.springframework.stereotype.Service;
 import ru.otus.yardsportsteamlobby.enums.UserRole;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @Getter
 public class UserRoleCache implements Cache<UserRole> {
 
-    private Map<Long, UserRole> userRoleCacheMap = new HashMap<>();
+    private Map<Long, UserRole> userRoleCacheMap = new ConcurrentHashMap<>();
 
     @Override
     public UserRole getData(Long userId) {
@@ -35,6 +35,6 @@ public class UserRoleCache implements Cache<UserRole> {
 
     @Override
     public void dropCache() {
-        userRoleCacheMap = new HashMap<>();
+        userRoleCacheMap = new ConcurrentHashMap<>();
     }
 }

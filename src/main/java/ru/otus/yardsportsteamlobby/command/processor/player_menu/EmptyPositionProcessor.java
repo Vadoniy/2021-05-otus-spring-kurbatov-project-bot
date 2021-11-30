@@ -1,7 +1,6 @@
 package ru.otus.yardsportsteamlobby.command.processor.player_menu;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -13,8 +12,6 @@ import ru.otus.yardsportsteamlobby.service.KeyBoardService;
 import ru.otus.yardsportsteamlobby.service.LocalizationService;
 import ru.otus.yardsportsteamlobby.service.UserRoleService;
 import ru.otus.yardsportsteamlobby.service.cache.PlayerCache;
-
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
