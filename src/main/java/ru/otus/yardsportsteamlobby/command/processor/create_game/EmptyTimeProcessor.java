@@ -24,14 +24,14 @@ public class EmptyTimeProcessor implements CreateGameProcessor {
         final var response = new SendMessage();
         response.setChatId(chatId.toString());
         if (!isTimeInputOk(text)) {
-            response.setText(localizationService.getLocalizedMessage("enter.message.wrong-time"));
+            response.setText(localizationService.getLocalizedMessage("enter.message.wrong-time", userId));
         } else {
             final var gameTime = LocalTime.parse(text);
             final var gameDate = gameData.getCreateGameRequest().getGameDateTime().toLocalDate();
             final var gameDateTime = LocalDateTime.of(gameDate, gameTime);
             gameData.getCreateGameRequest().setGameDateTime(gameDateTime);
             gameData.setCreateGameState(EMPTY_CAPACITY);
-            response.setText(localizationService.getLocalizedMessage("enter.message.players-amount"));
+            response.setText(localizationService.getLocalizedMessage("enter.message.players-amount", userId));
         }
         return response;
     }

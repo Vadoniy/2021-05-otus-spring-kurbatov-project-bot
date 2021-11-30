@@ -22,10 +22,10 @@ public class EmptyPhoneProcessor implements PlayerMenuProcessor {
         response.setChatId(chatId.toString());
         if (Pattern.matches("\\d{10,11}", text)) {
             userData.getCreatePlayerRequest().setPhone(text);
-            response.setText(localizationService.getLocalizedMessage("one-way.message.enter-number"));
+            response.setText(localizationService.getLocalizedMessage("one-way.message.enter-number", userId));
             userData.setPlayerRegistrationState(PlayerRegistrationState.EMPTY_NUMBER);
         } else {
-            response.setText(localizationService.getLocalizedMessage("one-way.message.wrong-phone"));
+            response.setText(localizationService.getLocalizedMessage("one-way.message.wrong-phone", userId));
         }
         return response;
     }

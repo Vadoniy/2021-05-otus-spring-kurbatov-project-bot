@@ -9,17 +9,21 @@ import ru.otus.yardsportsteamlobby.command.processor.main_menu.*;
 @RequiredArgsConstructor
 public enum MainMenuSelect {
 
-    START("/start", "main.menu.greetings", MainMenuKeyboardProcessor.class),
+    MAIN_MENU(":v:", "main.menu.greetings", MainMenuKeyboardProcessor.class),
 
-    REGISTER("REGISTER", "main.menu.register", RegisterProcessor.class),
+    REGISTER(":heavy_check_mark:", "main.menu.register", RegisterProcessor.class),
 
-    SIGN_UP_FOR_GAME("SIGN_UP_FOR_GAME", "main.menu.sign-up-for-game", SignUpForGameProcessor.class),
+    RU(":ru:", "main.menu.locale.ru", MainMenuKeyboardProcessor.class),
 
-    CREATE_GAME("CREATE_GAME", "main.menu.create-game", MainMenuCreateGameProcessor.class),
+    EN(":gb:", "main.menu.locale.en", MainMenuKeyboardProcessor.class),
 
-    DELETE_PLAYER("DELETE_PLAYER", "main.menu.delete-player-data", MainMenuDeletePlayerProcessor.class);
+    SIGN_UP_FOR_GAME(":heavy_plus_sign:", "main.menu.sign-up-for-game", SignUpForGameProcessor.class),
 
-    private final String name;
+    CREATE_GAME(":ice_hockey:", "main.menu.create-game", MainMenuCreateGameProcessor.class),
+
+    DELETE_PLAYER(":x:", "main.menu.delete-player-data", MainMenuDeletePlayerProcessor.class);
+
+    private final String emoji;
 
     private final String message;
 
@@ -27,10 +31,19 @@ public enum MainMenuSelect {
 
     public static Class<? extends MainMenuProcessor> getMainMenuProcessor(String message) {
         for (MainMenuSelect mainMenuSelect : MainMenuSelect.values()) {
-            if (mainMenuSelect.name.equals(message)) {
+            if (message.contains(mainMenuSelect.emoji)) {
                 return mainMenuSelect.processor;
             }
         }
         return RegisterProcessor.class;
+    }
+
+    public static MainMenuSelect resolveByEmoji(String emojiShortCode) {
+        for (MainMenuSelect mainMenuSelect : MainMenuSelect.values()) {
+            if (mainMenuSelect.getEmoji().equals(emojiShortCode)) {
+                return mainMenuSelect;
+            }
+        }
+        return MAIN_MENU;
     }
 }

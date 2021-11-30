@@ -23,7 +23,7 @@ public class CalendarService {
 
     private final LocalizationService localizationService;
 
-    public SendMessage createMonthKeyboard(Long chatId) {
+    public SendMessage createMonthKeyboard(Long chatId, Long userId) {
         final var sendMessage = new SendMessage();
         sendMessage.setChatId(chatId.toString());
         final var keyBoardList = new ArrayList<List<InlineKeyboardButton>>(12);
@@ -34,7 +34,7 @@ public class CalendarService {
             keyBoardList.add(List.of(monthButton));
         }
         sendMessage.setReplyMarkup(keyBoardService.createKeyboardMarkup(keyBoardList));
-        sendMessage.setText(localizationService.getLocalizedMessage("one-way.message.select-month"));
+        sendMessage.setText(localizationService.getLocalizedMessage("one-way.message.select-month", userId));
         return sendMessage;
     }
 
