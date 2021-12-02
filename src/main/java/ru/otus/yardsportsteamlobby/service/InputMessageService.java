@@ -1,5 +1,6 @@
 package ru.otus.yardsportsteamlobby.service;
 
+import com.vdurmont.emoji.EmojiParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -13,6 +14,7 @@ import ru.otus.yardsportsteamlobby.service.cache.CreateGameCache;
 import ru.otus.yardsportsteamlobby.service.cache.PlayerCache;
 
 import javax.validation.constraints.NotNull;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @Service
@@ -46,10 +48,10 @@ public class InputMessageService {
             return playerService.registerPlayer(chatId, userId, message.getText());
         }
 
-        final var processorClazz = Stream.of(MainMenuSelect.values())
-                .filter(mainMenuSelect -> localizationService.getLocalizedMessage(mainMenuSelect.getMessage()).equals(text))
-                .findAny()
-                .orElse(MainMenuSelect.START)
+        final var emojiInput = extractEmojiFromInputText(text);
+
+        final var processorClazz = Optional.ofNullable(MainMenuSelect.resolveByEmoji(emojiInput))
+                .orElse(MainMenuSelect.MAIN_MENU)
                 .getProcessor();
         final var processor = context.getBean(processorClazz);
         return processor.process(chatId, userId, text, usersRole);
@@ -61,5 +63,9 @@ public class InputMessageService {
         } else {
             return Stream.of(CallbackQuerySelect.values()).anyMatch(dateState -> text.startsWith(dateState.name() + "_"));
         }
+    }
+
+    private String extractEmojiFromInputText(String inputText) {
+        return EmojiParser.extractEmojis(inputText).stream().map(EmojiParser::parseToAliases).findAny().orElse("");
     }
 }

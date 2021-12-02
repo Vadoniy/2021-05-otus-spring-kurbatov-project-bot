@@ -33,14 +33,14 @@ public class EmptyDateProcessor implements CreateGameProcessor {
         if (StringUtils.hasText(text) && text.startsWith(CallbackQuerySelect.SELECTED_MONTH_.name())) {
             final var daysOfMonthList = calendarService.fillDaysOfMonth(Month.valueOf(text.replace(CallbackQuerySelect.SELECTED_MONTH_.name(), "")));
             response.setReplyMarkup(keyBoardService.createKeyboardMarkup(daysOfMonthList));
-            response.setText(localizationService.getLocalizedMessage("one-way.message.select-date"));
+            response.setText(localizationService.getLocalizedMessage("one-way.message.select-date", userId));
             return response;
         }
         final var request = gameData.getCreateGameRequest();
         final var gameDateTime = LocalDate.parse(text.replace(CallbackQuerySelect.SELECTED_DATE_.name(), "")).atStartOfDay();
         request.setGameDateTime(gameDateTime);
         gameData.setCreateGameState(EMPTY_TIME);
-        response.setText(localizationService.getLocalizedMessage("enter.message.game-time"));
+        response.setText(localizationService.getLocalizedMessage("enter.message.game-time", userId));
         return response;
     }
 }

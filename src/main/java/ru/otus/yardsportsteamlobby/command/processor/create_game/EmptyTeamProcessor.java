@@ -43,29 +43,29 @@ public class EmptyTeamProcessor implements CreateGameProcessor {
                 gameData.getCreateGameRequest().setTeamNameA(text);
             }
             gameData.setCreateGameState(EMPTY_TEAM_2_NAME);
-            response.setText(localizationService.getLocalizedMessage("enter.message.team-b-name"));
-            response.setReplyMarkup(keyBoardService.createKeyboardMarkup(createSkipButton()));
+            response.setText(localizationService.getLocalizedMessage("enter.message.team-b-name", userId));
+            response.setReplyMarkup(keyBoardService.createKeyboardMarkup(createSkipButton(userId)));
         } else {
             if (StringUtils.hasText(text) && !CallbackQuerySelect.SKIP.name().equals(text)) {
                 gameData.getCreateGameRequest().setTeamNameB(text);
             }
             try {
                 yardSportsTeamLobbyClient.sendCreateGameRequest(gameData.getCreateGameRequest(), userId);
-                response.setText(localizationService.getLocalizedMessage("one-way.message.request-is-sent"));
+                response.setText(localizationService.getLocalizedMessage("one-way.message.request-is-sent", userId));
             } catch (Exception e) {
                 log.info(e.getMessage());
-                response.setText(localizationService.getLocalizedMessage("one-way.message.smth-is-wrong"));
+                response.setText(localizationService.getLocalizedMessage("one-way.message.smth-is-wrong", userId));
             } finally {
                 createGameCache.removeData(userId);
-                response.setReplyMarkup(keyBoardService.createMainMenuKeyboard(userRole));
+                response.setReplyMarkup(keyBoardService.createMainMenuKeyboard(userId, userRole));
             }
         }
         return response;
     }
 
-    private ArrayList<List<InlineKeyboardButton>> createSkipButton() {
+    private ArrayList<List<InlineKeyboardButton>> createSkipButton(Long userId) {
         final var skipButton = new InlineKeyboardButton();
-        skipButton.setText(localizationService.getLocalizedMessage("select.skip"));
+        skipButton.setText(localizationService.getLocalizedMessage("select.skip", userId));
         skipButton.setCallbackData(CallbackQuerySelect.SKIP.name());
         final var keyboardButtonsRow1 = new ArrayList<InlineKeyboardButton>();
         keyboardButtonsRow1.add(skipButton);
