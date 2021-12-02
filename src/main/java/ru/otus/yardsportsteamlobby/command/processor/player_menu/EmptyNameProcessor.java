@@ -19,7 +19,7 @@ public class EmptyNameProcessor implements PlayerMenuProcessor {
         final var response = new SendMessage();
         response.setChatId(chatId.toString());
         userData.getCreatePlayerRequest().setName(text);
-        response.setText(localizationService.getLocalizedMessage("one-way.message.enter-your-phone"));
+        response.setText(localizationService.getLocalizedMessage("one-way.message.enter-your-phone", userId));
         userData.setPlayerRegistrationState(PlayerRegistrationState.EMPTY_PHONE);
         return response;
     }

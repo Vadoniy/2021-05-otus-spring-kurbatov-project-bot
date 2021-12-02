@@ -43,7 +43,7 @@ public class PlayerService {
             return processAlreadyExistData(chatId, userId, text, DeletePlayerProcessor.class);
         } else {
             final var response = processNewMessage(chatId, userId, "one-way.message.sure", PlayerRegistrationState.DELETE);
-            response.setReplyMarkup(keyBoardService.createSelectYesNoMarkup());
+            response.setReplyMarkup(keyBoardService.createSelectYesNoMarkup(userId));
             return response;
         }
     }
@@ -57,7 +57,7 @@ public class PlayerService {
     private SendMessage processNewMessage(Long chatId, Long userId, String textPath, PlayerRegistrationState state) {
         final var response = new SendMessage();
         response.setChatId(chatId.toString());
-        response.setText(localizationService.getLocalizedMessage(textPath));
+        response.setText(localizationService.getLocalizedMessage(textPath, userId));
         final var registrationStateWithRequest = new RegistrationStateWithRequest()
                 .setPlayerRegistrationState(state);
         if (state == PlayerRegistrationState.EMPTY_NAME) {

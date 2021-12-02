@@ -35,11 +35,11 @@ public class EmptyPositionProcessor implements PlayerMenuProcessor {
         userData.getCreatePlayerRequest().setUserId(userId);
         try {
             final var savedPlayerRole = yardSportsTeamLobbyClient.sendCreatePlayerRequest(userData.getCreatePlayerRequest());
-            response.setText(localizationService.getLocalizedMessage("one-way.message.request-is-sent"));
+            response.setText(localizationService.getLocalizedMessage("one-way.message.request-is-sent", userId));
             userRoleService.updateUsersRole(userId, savedPlayerRole);
-            response.setReplyMarkup(keyBoardService.createMainMenuKeyboard(savedPlayerRole));
+            response.setReplyMarkup(keyBoardService.createMainMenuKeyboard(userId, savedPlayerRole));
         } catch (HttpClientErrorException ex) {
-            response.setText(localizationService.getLocalizedMessage("one-way.message.smth-is-wrong"));
+            response.setText(localizationService.getLocalizedMessage("one-way.message.smth-is-wrong", userId));
         } finally {
             playerCache.removeData(userId);
         }

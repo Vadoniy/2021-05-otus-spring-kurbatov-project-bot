@@ -14,6 +14,6 @@ public class MonthProcessor implements CallbackQueryProcessor {
 
     @Override
     public SendMessage process(Long chatId, Long userId, String text, String userRole) {
-        return calendarService.createMonthKeyboard(chatId);
+        return calendarService.createMonthKeyboard(chatId, userId);
     }
 }

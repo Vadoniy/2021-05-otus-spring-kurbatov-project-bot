@@ -29,20 +29,20 @@ public class EmptyCapacityProcessor implements CreateGameProcessor {
         final var response = new SendMessage();
         response.setChatId(chatId.toString());
         if (!StringUtils.hasText(text) || !text.matches("\\d{1,2}")) {
-            response.setText(localizationService.getLocalizedMessage("enter.message.players-amount"));
+            response.setText(localizationService.getLocalizedMessage("enter.message.players-amount", userId));
         } else {
             final var teamCapacity = Integer.parseInt(text);
             gameData.getCreateGameRequest().setTeamCapacity(teamCapacity);
             gameData.setCreateGameState(EMPTY_TEAM_1_NAME);
-            response.setText(localizationService.getLocalizedMessage("enter.message.team-a-name"));
-            response.setReplyMarkup(keyBoardService.createKeyboardMarkup(createSkipButton()));
+            response.setText(localizationService.getLocalizedMessage("enter.message.team-a-name", userId));
+            response.setReplyMarkup(keyBoardService.createKeyboardMarkup(createSkipButton(userId)));
         }
         return response;
     }
 
-    private ArrayList<List<InlineKeyboardButton>> createSkipButton() {
+    private ArrayList<List<InlineKeyboardButton>> createSkipButton(Long userId) {
         final var skipButton = new InlineKeyboardButton();
-        skipButton.setText(localizationService.getLocalizedMessage("select.skip"));
+        skipButton.setText(localizationService.getLocalizedMessage("select.skip", userId));
         skipButton.setCallbackData(CallbackQuerySelect.SKIP.name());
         final var keyboardButtonsRow1 = new ArrayList<InlineKeyboardButton>();
         keyboardButtonsRow1.add(skipButton);

@@ -23,11 +23,11 @@ public class EmptyNumberProcessor implements PlayerMenuProcessor {
         response.setChatId(chatId.toString());
         try {
             userData.getCreatePlayerRequest().setNumber(Integer.parseInt(text));
-            response.setText(localizationService.getLocalizedMessage("one-way.message.select-position"));
-            response.setReplyMarkup(keyBoardService.createSelectPositionMarkup());
+            response.setText(localizationService.getLocalizedMessage("one-way.message.select-position", userId));
+            response.setReplyMarkup(keyBoardService.createSelectPositionMarkup(userId));
             userData.setPlayerRegistrationState(PlayerRegistrationState.EMPTY_POSITION);
         } catch (NumberFormatException nfe) {
-            response.setText(localizationService.getLocalizedMessage("one-way.message.wrong-number"));
+            response.setText(localizationService.getLocalizedMessage("one-way.message.wrong-number", userId));
         }
         return response;
     }

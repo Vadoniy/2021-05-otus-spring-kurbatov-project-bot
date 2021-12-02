@@ -37,19 +37,19 @@ public class DeletePlayerProcessor implements PlayerMenuProcessor {
         if (PlayerRegistrationState.DELETE == userData.getPlayerRegistrationState()) {
             if (CallbackQuerySelect.SURE_TO_DELETE_PLAYER == CallbackQuerySelect.valueOf(text)) {
                 final var newRole = yardSportsTeamLobbyClient.sendDeletePlayerRequest(userId.toString());
-                response.setText(localizationService.getLocalizedMessage("one-way.message.request-is-sent"));
+                response.setText(localizationService.getLocalizedMessage("one-way.message.request-is-sent", userId));
                 userRoleService.updateUsersRole(userId, Optional.ofNullable(newRole.getBody()).orElse(UserRole.NEW.name()));
             } else {
-                response.setText(localizationService.getLocalizedMessage("one-way.message.request-is-deleted"));
+                response.setText(localizationService.getLocalizedMessage("one-way.message.request-is-deleted", userId));
             }
             playerCache.removeData(userId);
-            response.setReplyMarkup(keyBoardService.createMainMenuKeyboard(userRoleService.getUserRoleByUserId(userId)));
+            response.setReplyMarkup(keyBoardService.createMainMenuKeyboard(userId, userRoleService.getUserRoleByUserId(userId)));
         } else {
             final var registrationStateWithRequest = new RegistrationStateWithRequest()
                     .setPlayerRegistrationState(PlayerRegistrationState.DELETE);
             playerCache.addData(userId, registrationStateWithRequest);
-            response.setReplyMarkup(keyBoardService.createSelectYesNoMarkup());
-            response.setText(localizationService.getLocalizedMessage("one-way.message.sure"));
+            response.setReplyMarkup(keyBoardService.createSelectYesNoMarkup(userId));
+            response.setText(localizationService.getLocalizedMessage("one-way.message.sure", userId));
         }
         return response;
     }

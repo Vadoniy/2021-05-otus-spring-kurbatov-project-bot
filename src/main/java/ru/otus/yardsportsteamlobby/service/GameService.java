@@ -61,7 +61,7 @@ public class GameService {
                     .setCreateGameRequest(new CreateGameRequest()));
             final var daysOfMonthList = calendarService.fillDaysOfMonth(LocalDate.now().getMonth());
             response.setReplyMarkup(keyBoardService.createKeyboardMarkup(daysOfMonthList));
-            response.setText(localizationService.getLocalizedMessage("one-way.message.select-date"));
+            response.setText(localizationService.getLocalizedMessage("one-way.message.select-date", userId));
         }
         return response;
     }
@@ -74,24 +74,24 @@ public class GameService {
         final var responseEntity = yardSportsTeamLobbyClient.signUpForGameRequest(selectedGameId, selectedTeamId, userId);
         final var responseStatus = responseEntity.getStatusCode();
         if (responseStatus == HttpStatus.ALREADY_REPORTED) {
-            response.setText(localizationService.getLocalizedMessage("one-way.message.select-other-team"));
+            response.setText(localizationService.getLocalizedMessage("one-way.message.select-other-team", userId));
             response.setReplyMarkup(getTeamRosters(chatId, userId, CallbackQuerySelect.SELECTED_GAME_.name() + selectedGameId).getReplyMarkup());
         } else if (responseStatus == HttpStatus.NO_CONTENT) {
-            response.setText(localizationService.getLocalizedMessage("one-way.message.teams-full"));
+            response.setText(localizationService.getLocalizedMessage("one-way.message.teams-full", userId));
         } else if (responseStatus == HttpStatus.MULTI_STATUS) {
-            response.setText(localizationService.getLocalizedMessage("one-way.message.who-are-you"));
-            response.setReplyMarkup(keyBoardService.createMainMenuKeyboard(userRole));
+            response.setText(localizationService.getLocalizedMessage("one-way.message.who-are-you", userId));
+            response.setReplyMarkup(keyBoardService.createMainMenuKeyboard(userId, userRole));
         } else if (responseStatus == HttpStatus.OK) {
             final var afterSelectionGame = Optional.of(responseEntity)
                     .map(HttpEntity::getBody)
                     .orElseThrow();
-            final var responseText = localizationService.getLocalizedMessage("one-way.message.you-are-in") + '\n' +
+            final var responseText = localizationService.getLocalizedMessage("one-way.message.you-are-in", userId) + '\n' +
                     teamsRosterText(afterSelectionGame.getTeamA().getTeamName(), afterSelectionGame.getTeamCapacity(),
                             afterSelectionGame.getTeamA().getLineUp()) + '\n' +
                     teamsRosterText(afterSelectionGame.getTeamB().getTeamName(), afterSelectionGame.getTeamCapacity(),
                             afterSelectionGame.getTeamB().getLineUp());
             response.setText(responseText);
-            response.setReplyMarkup(keyBoardService.createMainMenuKeyboard(userRole));
+            response.setReplyMarkup(keyBoardService.createMainMenuKeyboard(userId, userRole));
             signUpForGameCache.removeData(userId);
         }
         return response;
@@ -100,7 +100,7 @@ public class GameService {
     public SendMessage getTeamRosters(Long chatId, Long userId, String text) {
         final var response = new SendMessage();
         response.setChatId(chatId.toString());
-        response.setText(localizationService.getLocalizedMessage("one-way.message.select-team"));
+        response.setText(localizationService.getLocalizedMessage("one-way.message.select-team", userId));
         final var gameId = Long.parseLong(text.replace(CallbackQuerySelect.SELECTED_GAME_.name(), ""));
         signUpForGameCache.getData(userId).setSelectedGameId(gameId);
         final var signUpData = signUpForGameCache.getData(userId);
@@ -134,12 +134,12 @@ public class GameService {
                 .orElse(new ArrayList<>(0));
 
         if (CollectionUtils.isEmpty(lastGames)) {
-            response.setText(localizationService.getLocalizedMessage("one-way.message.no-games"));
-            response.setReplyMarkup(keyBoardService.createMainMenuKeyboard(userRole));
+            response.setText(localizationService.getLocalizedMessage("one-way.message.no-games", userId));
+            response.setReplyMarkup(keyBoardService.createMainMenuKeyboard(userId, userRole));
         } else {
             final var gameList = createGameButtonsList(lastGames);
             signUpForGameCache.addData(userId, new SignUpDto().setLastGames(lastGames));
-            response.setText(localizationService.getLocalizedMessage("one-way.message.select-game"));
+            response.setText(localizationService.getLocalizedMessage("one-way.message.select-game", userId));
             response.setReplyMarkup(keyBoardService.createKeyboardMarkup(gameList));
         }
         return response;
