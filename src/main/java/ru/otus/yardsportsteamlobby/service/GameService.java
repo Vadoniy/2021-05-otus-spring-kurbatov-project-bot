@@ -2,7 +2,6 @@ package ru.otus.yardsportsteamlobby.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +13,6 @@ import ru.otus.yardsportsteamlobby.client.YardSportsTeamLobbyClient;
 import ru.otus.yardsportsteamlobby.command.processor.CreateGameProcessor;
 import ru.otus.yardsportsteamlobby.dto.*;
 import ru.otus.yardsportsteamlobby.enums.CallbackQuerySelect;
-import ru.otus.yardsportsteamlobby.enums.CreateGameState;
 import ru.otus.yardsportsteamlobby.service.cache.CreateGameCache;
 import ru.otus.yardsportsteamlobby.service.cache.SignUpForGameCache;
 
@@ -34,8 +32,6 @@ public class GameService {
 
     private final CalendarService calendarService;
 
-    private final ConfigurableApplicationContext context;
-
     private final CreateGameCache createGameCache;
 
     private final KeyBoardService keyBoardService;
@@ -46,6 +42,8 @@ public class GameService {
 
     private final YardSportsTeamLobbyClient yardSportsTeamLobbyClient;
 
+    private final List<? extends CreateGameProcessor> createGameProcessors;
+
     public SendMessage createGame(@NotNull Long chatId, @NotNull Long userId, @NotBlank String text, String userRole) {
         final var response = new SendMessage();
         response.setChatId(chatId.toString());
@@ -53,8 +51,15 @@ public class GameService {
         if (createGameCache.isDataAlreadyExists(userId)) {
             final var gameData = createGameCache.getData(userId);
             final var createGameState = gameData.getCreateGameState();
-            final var processorClazz = CreateGameState.valueOf(createGameState.name()).getProcessor();
-            return processAlreadyExistData(chatId, userId, text, processorClazz, gameData, userRole);
+            final var processor = createGameProcessors.stream()
+                    .filter(createGameProcessor -> createGameProcessor.getClass() == createGameState.getProcessor())
+                    .findAny();
+
+            if (processor.isPresent()) {
+                return processor.map(createGameProcessor -> createGameProcessor.process(gameData, chatId, text, userId, userRole)).orElse(new SendMessage());
+            } else {
+                createGameCache.removeData(userId);
+            }
         } else {
             createGameCache.addData(userId, new GameCreatingStateWithRequest()
                     .setCreateGameState(EMPTY_DATE)
@@ -143,14 +148,6 @@ public class GameService {
             response.setReplyMarkup(keyBoardService.createKeyboardMarkup(gameList));
         }
         return response;
-    }
-
-    private SendMessage processAlreadyExistData(Long chatId, Long userId, String text,
-                                                Class<? extends CreateGameProcessor> createGameProcessor,
-                                                GameCreatingStateWithRequest gameCreatingStateWithRequest,
-                                                String userRole) {
-        final var processor = context.getBean(createGameProcessor);
-        return processor.process(gameCreatingStateWithRequest, chatId, text, userId, userRole);
     }
 
     private ArrayList<List<InlineKeyboardButton>> createRosterButtons(GameDto gameDto) {
