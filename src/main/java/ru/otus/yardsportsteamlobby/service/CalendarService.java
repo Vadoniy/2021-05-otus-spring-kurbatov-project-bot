@@ -54,7 +54,7 @@ public class CalendarService {
         keyBoardList.add(row0);
         for (int i = 1; i < month.length(Year.isLeap(currentYear)); ) {
             final var anotherRow = new ArrayList<InlineKeyboardButton>(6);
-            for (int j = 0; j < 6; j++, i++) {
+            for (int j = 0; j < 7 && i <= month.length(Year.isLeap(currentYear)); j++, i++) {
                 final var anotherDay = new InlineKeyboardButton();
                 anotherDay.setText(String.valueOf(i));
                 anotherDay.setCallbackData(CallbackQuerySelect.SELECTED_DATE_.name()

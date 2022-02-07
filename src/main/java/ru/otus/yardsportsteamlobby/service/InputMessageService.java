@@ -3,17 +3,18 @@ package ru.otus.yardsportsteamlobby.service;
 import com.vdurmont.emoji.EmojiParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import ru.otus.yardsportsteamlobby.command.processor.MainMenuProcessor;
 import ru.otus.yardsportsteamlobby.enums.CallbackQuerySelect;
 import ru.otus.yardsportsteamlobby.enums.MainMenuSelect;
 import ru.otus.yardsportsteamlobby.service.cache.CreateGameCache;
 import ru.otus.yardsportsteamlobby.service.cache.PlayerCache;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -22,13 +23,11 @@ import java.util.stream.Stream;
 @Slf4j
 public class InputMessageService {
 
-    private final ConfigurableApplicationContext context;
-
     private final CreateGameCache createGameCache;
 
     private final GameService gameService;
 
-    private final LocalizationService localizationService;
+    private final List<MainMenuProcessor> mainMenuProcessors;
 
     private final PlayerService playerService;
 
@@ -49,12 +48,15 @@ public class InputMessageService {
         }
 
         final var emojiInput = extractEmojiFromInputText(text);
-
         final var processorClazz = Optional.ofNullable(MainMenuSelect.resolveByEmoji(emojiInput))
                 .orElse(MainMenuSelect.MAIN_MENU)
                 .getProcessor();
-        final var processor = context.getBean(processorClazz);
-        return processor.process(chatId, userId, text, usersRole);
+
+        return mainMenuProcessors.stream()
+                .filter(mainMenuProcessor -> mainMenuProcessor.getClass() == processorClazz)
+                .findAny()
+                .map(mainMenuProcessor -> mainMenuProcessor.process(chatId, userId, text, usersRole))
+                .orElse(new SendMessage());
     }
 
     private boolean isGameDateTime(String text) {
