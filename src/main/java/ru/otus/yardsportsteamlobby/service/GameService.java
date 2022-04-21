@@ -10,8 +10,13 @@ import org.springframework.util.CollectionUtils;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.otus.yardsportsteamlobby.client.YardSportsTeamLobbyClient;
-import ru.otus.yardsportsteamlobby.command.processor.CreateGameProcessor;
-import ru.otus.yardsportsteamlobby.dto.*;
+import ru.otus.yardsportsteamlobby.command.processor.TelegramMessageProcessor;
+import ru.otus.yardsportsteamlobby.dto.CreateGameRequest;
+import ru.otus.yardsportsteamlobby.dto.GameCreatingStateWithRequest;
+import ru.otus.yardsportsteamlobby.dto.GameDto;
+import ru.otus.yardsportsteamlobby.dto.ListGameResponse;
+import ru.otus.yardsportsteamlobby.dto.PlayerDto;
+import ru.otus.yardsportsteamlobby.dto.SignUpDto;
 import ru.otus.yardsportsteamlobby.enums.CallbackQuerySelect;
 import ru.otus.yardsportsteamlobby.service.cache.CreateGameCache;
 import ru.otus.yardsportsteamlobby.service.cache.SignUpForGameCache;
@@ -42,7 +47,7 @@ public class GameService {
 
     private final YardSportsTeamLobbyClient yardSportsTeamLobbyClient;
 
-    private final List<? extends CreateGameProcessor> createGameProcessors;
+    private final List<? extends TelegramMessageProcessor> createGameProcessors;
 
     public SendMessage createGame(@NotNull Long chatId, @NotNull Long userId, @NotBlank String text, String userRole) {
         final var response = new SendMessage();
@@ -56,7 +61,7 @@ public class GameService {
                     .findAny();
 
             if (processor.isPresent()) {
-                return processor.map(createGameProcessor -> createGameProcessor.process(gameData, chatId, text, userId, userRole)).orElse(new SendMessage());
+                return processor.map(createGameProcessor -> createGameProcessor.process(chatId, userId, text, userRole)).orElse(new SendMessage());
             } else {
                 createGameCache.removeData(userId);
             }

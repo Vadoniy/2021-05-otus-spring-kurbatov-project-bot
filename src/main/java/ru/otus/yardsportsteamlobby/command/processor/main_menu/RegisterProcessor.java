@@ -1,22 +1,33 @@
 package ru.otus.yardsportsteamlobby.command.processor.main_menu;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import ru.otus.yardsportsteamlobby.command.processor.MainMenuProcessor;
-import ru.otus.yardsportsteamlobby.service.PlayerService;
+import ru.otus.yardsportsteamlobby.command.processor.AbstractCommonProcessor;
+import ru.otus.yardsportsteamlobby.dto.CreatePlayerRequest;
+import ru.otus.yardsportsteamlobby.service.BotStateService;
+import ru.otus.yardsportsteamlobby.service.CreatePlayerRequestByUserIdService;
+import ru.otus.yardsportsteamlobby.service.KeyBoardService;
+import ru.otus.yardsportsteamlobby.service.LocalizationService;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+@Service
+public class RegisterProcessor extends AbstractCommonProcessor {
 
-@Component
-@RequiredArgsConstructor
-public class RegisterProcessor implements MainMenuProcessor {
+    private final CreatePlayerRequestByUserIdService createPlayerRequestByUserIdService;
 
-    private final PlayerService playerService;
+    public RegisterProcessor(BotStateService botStateService, KeyBoardService keyBoardService, LocalizationService localizationService,
+                             CreatePlayerRequestByUserIdService createPlayerRequestByUserIdService) {
+        super(botStateService, keyBoardService, localizationService);
+        this.createPlayerRequestByUserIdService = createPlayerRequestByUserIdService;
+    }
 
     @Override
-    public SendMessage process(@NotNull Long chatId, @NotNull Long userId, @NotBlank String text, String userRole) {
-        return playerService.registerPlayer(chatId, userId, text);
+    public SendMessage process(Long chatId, Long userId, String text, String userRole) {
+        return super.process(chatId, userId, text, userRole);
+    }
+
+    @Override
+    protected void fillTheResponse(SendMessage sendMessage, Long chatId, Long userId, String text) {
+        sendMessage.setText(localizationService.getLocalizedMessage("one-way.message.enter-your-name", userId));
+        createPlayerRequestByUserIdService.saveCurrentCreateGameRequest(userId, new CreatePlayerRequest().setUserId(userId));
     }
 }

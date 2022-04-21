@@ -2,8 +2,12 @@ package ru.otus.yardsportsteamlobby.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import ru.otus.yardsportsteamlobby.command.processor.MainMenuProcessor;
-import ru.otus.yardsportsteamlobby.command.processor.main_menu.*;
+import ru.otus.yardsportsteamlobby.command.processor.TelegramMessageProcessor;
+import ru.otus.yardsportsteamlobby.command.processor.main_menu.MainMenuCreateGameProcessor;
+import ru.otus.yardsportsteamlobby.command.processor.main_menu.MainMenuDeletePlayerProcessor;
+import ru.otus.yardsportsteamlobby.command.processor.main_menu.MainMenuKeyboardProcessor;
+import ru.otus.yardsportsteamlobby.command.processor.main_menu.RegisterProcessor;
+import ru.otus.yardsportsteamlobby.command.processor.main_menu.SignUpForGameProcessor;
 
 @Getter
 @RequiredArgsConstructor
@@ -27,9 +31,9 @@ public enum MainMenuSelect {
 
     private final String message;
 
-    private final Class<? extends MainMenuProcessor> processor;
+    private final Class<? extends TelegramMessageProcessor> processor;
 
-    public static Class<? extends MainMenuProcessor> getMainMenuProcessor(String message) {
+    public static Class<? extends TelegramMessageProcessor> getMainMenuProcessor(String message) {
         for (MainMenuSelect mainMenuSelect : MainMenuSelect.values()) {
             if (message.contains(mainMenuSelect.emoji)) {
                 return mainMenuSelect.processor;

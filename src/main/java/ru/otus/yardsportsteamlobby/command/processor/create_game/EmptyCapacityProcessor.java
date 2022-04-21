@@ -1,53 +1,42 @@
 package ru.otus.yardsportsteamlobby.command.processor.create_game;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import ru.otus.yardsportsteamlobby.command.processor.CreateGameProcessor;
-import ru.otus.yardsportsteamlobby.dto.GameCreatingStateWithRequest;
-import ru.otus.yardsportsteamlobby.enums.CallbackQuerySelect;
+import ru.otus.yardsportsteamlobby.command.processor.AbstractCommonProcessor;
+import ru.otus.yardsportsteamlobby.dto.CreateGameRequest;
+import ru.otus.yardsportsteamlobby.enums.BotState;
+import ru.otus.yardsportsteamlobby.repository.redis.CreateGameRequestByUserId;
+import ru.otus.yardsportsteamlobby.service.BotStateService;
+import ru.otus.yardsportsteamlobby.service.CreateGameRequestByUserIdService;
 import ru.otus.yardsportsteamlobby.service.KeyBoardService;
 import ru.otus.yardsportsteamlobby.service.LocalizationService;
 
-import java.util.ArrayList;
-import java.util.List;
+@Service
+public class EmptyCapacityProcessor extends AbstractCommonProcessor {
 
-import static ru.otus.yardsportsteamlobby.enums.CreateGameState.EMPTY_TEAM_1_NAME;
+    private final CreateGameRequestByUserIdService createGameRequestByUserIdService;
 
-@Component
-@RequiredArgsConstructor
-public class EmptyCapacityProcessor implements CreateGameProcessor {
-
-    private final KeyBoardService keyBoardService;
-
-    private final LocalizationService localizationService;
-
-    @Override
-    public SendMessage process(GameCreatingStateWithRequest gameData, Long chatId, String text, Long userId, String userRole) {
-        final var response = new SendMessage();
-        response.setChatId(chatId.toString());
-        if (!StringUtils.hasText(text) || !text.matches("\\d{1,2}")) {
-            response.setText(localizationService.getLocalizedMessage("enter.message.players-amount", userId));
-        } else {
-            final var teamCapacity = Integer.parseInt(text);
-            gameData.getCreateGameRequest().setTeamCapacity(teamCapacity);
-            gameData.setCreateGameState(EMPTY_TEAM_1_NAME);
-            response.setText(localizationService.getLocalizedMessage("enter.message.team-a-name", userId));
-            response.setReplyMarkup(keyBoardService.createKeyboardMarkup(createSkipButton(userId)));
-        }
-        return response;
+    public EmptyCapacityProcessor(BotStateService botStateService, KeyBoardService keyBoardService, LocalizationService localizationService,
+                                  CreateGameRequestByUserIdService createGameRequestByUserIdService) {
+        super(botStateService, keyBoardService, localizationService);
+        this.createGameRequestByUserIdService = createGameRequestByUserIdService;
     }
 
-    private ArrayList<List<InlineKeyboardButton>> createSkipButton(Long userId) {
-        final var skipButton = new InlineKeyboardButton();
-        skipButton.setText(localizationService.getLocalizedMessage("select.skip", userId));
-        skipButton.setCallbackData(CallbackQuerySelect.SKIP.name());
-        final var keyboardButtonsRow1 = new ArrayList<InlineKeyboardButton>();
-        keyboardButtonsRow1.add(skipButton);
-        final var keyBoardList = new ArrayList<List<InlineKeyboardButton>>(1);
-        keyBoardList.add(keyboardButtonsRow1);
-        return keyBoardList;
+    @Override
+    protected void fillTheResponse(SendMessage sendMessage, Long chatId, Long userId, String text) {
+        if (!StringUtils.hasText(text) || !text.matches("\\d{1,2}")) {
+            sendMessage.setText(localizationService.getLocalizedMessage("enter.message.players-amount", userId));
+        } else {
+            final var teamCapacity = Integer.parseInt(text);
+            final var currentCreateGameRequest = createGameRequestByUserIdService.getCurrentCreateGameRequest(userId)
+                    .map(CreateGameRequestByUserId::getCreateGameRequest)
+                    .map(createGameRequest -> createGameRequest.setTeamCapacity(teamCapacity))
+                    .orElse(new CreateGameRequest().setTeamCapacity(teamCapacity));
+            sendMessage.setText(localizationService.getLocalizedMessage("enter.message.team-a-name", userId));
+            sendMessage.setReplyMarkup(keyBoardService.createKeyboardMarkup(createSkipButton(userId)));
+            createGameRequestByUserIdService.saveCurrentCreateGameRequest(userId, currentCreateGameRequest);
+            botStateService.saveBotStateForUser(userId, BotState.EMPTY_TEAM_1_NAME);
+        }
     }
 }

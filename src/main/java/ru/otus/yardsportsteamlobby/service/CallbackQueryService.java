@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import ru.otus.yardsportsteamlobby.command.processor.CallbackQueryProcessor;
+import ru.otus.yardsportsteamlobby.command.processor.TelegramMessageProcessor;
 import ru.otus.yardsportsteamlobby.enums.CallbackQuerySelect;
 
 import java.util.List;
@@ -15,7 +15,7 @@ import java.util.List;
 @Slf4j
 public class CallbackQueryService {
 
-    private final List<? extends CallbackQueryProcessor> callbackQueryProcessors;
+    private final List<? extends TelegramMessageProcessor> telegramMessageProcessors;
 
     private final KeyBoardService keyBoardService;
 
@@ -28,7 +28,7 @@ public class CallbackQueryService {
         final var usersRole = userRoleService.getUserRoleByUserId(userId);
         final var processorClazz = CallbackQuerySelect.getProcessorByCallbackData(callbackData);
 
-        return callbackQueryProcessors.stream()
+        return telegramMessageProcessors.stream()
                 .filter(callbackQueryProcessor -> callbackQueryProcessor.getClass() == processorClazz)
                 .findAny()
                 .map(callbackQueryProcessor -> callbackQueryProcessor.process(chatId, userId, callbackData, usersRole))

@@ -2,8 +2,14 @@ package ru.otus.yardsportsteamlobby.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import ru.otus.yardsportsteamlobby.command.processor.CallbackQueryProcessor;
-import ru.otus.yardsportsteamlobby.command.processor.callback_quey.*;
+import ru.otus.yardsportsteamlobby.command.processor.TelegramMessageProcessor;
+import ru.otus.yardsportsteamlobby.command.processor.callback_quey.DeleteOrNotPlayerProcessor;
+import ru.otus.yardsportsteamlobby.command.processor.callback_quey.GameSelectStateProcessor;
+import ru.otus.yardsportsteamlobby.command.processor.callback_quey.MonthProcessor;
+import ru.otus.yardsportsteamlobby.command.processor.callback_quey.SelectDateProcessor;
+import ru.otus.yardsportsteamlobby.command.processor.callback_quey.SelectPositionProcessor;
+import ru.otus.yardsportsteamlobby.command.processor.callback_quey.SkipTeamsNameProcessor;
+import ru.otus.yardsportsteamlobby.command.processor.callback_quey.TeamSelectStateProcessor;
 
 import java.time.Month;
 import java.util.stream.Stream;
@@ -30,9 +36,9 @@ public enum CallbackQuerySelect {
 
     SELECTED_DATE_(SelectDateProcessor.class);
 
-    private final Class<? extends CallbackQueryProcessor> processor;
+    private final Class<? extends TelegramMessageProcessor> processor;
 
-    public static Class<? extends CallbackQueryProcessor> getProcessorByCallbackData(String callbackData) {
+    public static Class<? extends TelegramMessageProcessor> getProcessorByCallbackData(String callbackData) {
         for (CallbackQuerySelect callbackQuerySelect : values()) {
             if (callbackQuerySelect.name().equals(callbackData) || callbackData.startsWith(callbackQuerySelect.name())) {
                 return callbackQuerySelect.processor;

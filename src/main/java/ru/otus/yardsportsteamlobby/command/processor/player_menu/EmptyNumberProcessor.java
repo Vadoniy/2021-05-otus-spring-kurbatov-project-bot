@@ -1,34 +1,49 @@
 package ru.otus.yardsportsteamlobby.command.processor.player_menu;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import ru.otus.yardsportsteamlobby.command.processor.PlayerMenuProcessor;
-import ru.otus.yardsportsteamlobby.dto.RegistrationStateWithRequest;
-import ru.otus.yardsportsteamlobby.enums.PlayerRegistrationState;
+import ru.otus.yardsportsteamlobby.command.processor.AbstractCommonProcessor;
+import ru.otus.yardsportsteamlobby.dto.CreatePlayerRequest;
+import ru.otus.yardsportsteamlobby.enums.BotState;
+import ru.otus.yardsportsteamlobby.repository.redis.CreatePlayerRequestByUserId;
+import ru.otus.yardsportsteamlobby.service.BotStateService;
+import ru.otus.yardsportsteamlobby.service.CreatePlayerRequestByUserIdService;
 import ru.otus.yardsportsteamlobby.service.KeyBoardService;
 import ru.otus.yardsportsteamlobby.service.LocalizationService;
 
-@Component
-@RequiredArgsConstructor
-public class EmptyNumberProcessor implements PlayerMenuProcessor {
+@Service
+public class EmptyNumberProcessor extends AbstractCommonProcessor {
+
+    private final CreatePlayerRequestByUserIdService createPlayerRequestByUserIdService;
 
     private final KeyBoardService keyBoardService;
 
-    private final LocalizationService localizationService;
+    public EmptyNumberProcessor(BotStateService botStateService, KeyBoardService keyBoardService,
+                                LocalizationService localizationService, CreatePlayerRequestByUserIdService createPlayerRequestByUserIdService,
+                                KeyBoardService keyBoardService1) {
+        super(botStateService, keyBoardService, localizationService);
+        this.createPlayerRequestByUserIdService = createPlayerRequestByUserIdService;
+        this.keyBoardService = keyBoardService1;
+    }
 
     @Override
-    public SendMessage process(RegistrationStateWithRequest userData, Long chatId, String text, Long userId) {
-        final var response = new SendMessage();
-        response.setChatId(chatId.toString());
+    public SendMessage process(Long chatId, Long userId, String text, String userRole) {
+        return super.process(chatId, userId, text, userRole);
+    }
+
+    @Override
+    protected void fillTheResponse(SendMessage sendMessage, Long chatId, Long userId, String text) {
         try {
-            userData.getCreatePlayerRequest().setNumber(Integer.parseInt(text));
-            response.setText(localizationService.getLocalizedMessage("one-way.message.select-position", userId));
-            response.setReplyMarkup(keyBoardService.createSelectPositionMarkup(userId));
-            userData.setPlayerRegistrationState(PlayerRegistrationState.EMPTY_POSITION);
+            final var currentCreatePlayerRequest = createPlayerRequestByUserIdService.getCurrentCreatePlayerRequest(userId)
+                    .map(CreatePlayerRequestByUserId::getCreatePlayerRequest)
+                    .map(createPlayerRequest -> createPlayerRequest.setNumber(Integer.parseInt(text)))
+                    .orElse(new CreatePlayerRequest().setUserId(userId).setNumber(Integer.parseInt(text)));
+            sendMessage.setText(localizationService.getLocalizedMessage("one-way.message.select-position", userId));
+            sendMessage.setReplyMarkup(keyBoardService.createSelectPositionMarkup(userId));
+            createPlayerRequestByUserIdService.saveCurrentCreateGameRequest(userId, currentCreatePlayerRequest);
         } catch (NumberFormatException nfe) {
-            response.setText(localizationService.getLocalizedMessage("one-way.message.wrong-number", userId));
+            sendMessage.setText(localizationService.getLocalizedMessage("one-way.message.wrong-number", userId));
         }
-        return response;
+        botStateService.saveBotStateForUser(userId, BotState.EMPTY_POSITION);
     }
 }

@@ -1,46 +1,54 @@
 package ru.otus.yardsportsteamlobby.command.processor.create_game;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import ru.otus.yardsportsteamlobby.command.processor.CreateGameProcessor;
-import ru.otus.yardsportsteamlobby.dto.GameCreatingStateWithRequest;
+import ru.otus.yardsportsteamlobby.command.processor.AbstractCommonProcessor;
+import ru.otus.yardsportsteamlobby.dto.CreateGameRequest;
+import ru.otus.yardsportsteamlobby.enums.BotState;
 import ru.otus.yardsportsteamlobby.enums.CallbackQuerySelect;
+import ru.otus.yardsportsteamlobby.repository.redis.CreateGameRequestByUserId;
+import ru.otus.yardsportsteamlobby.service.BotStateService;
 import ru.otus.yardsportsteamlobby.service.CalendarService;
+import ru.otus.yardsportsteamlobby.service.CreateGameRequestByUserIdService;
 import ru.otus.yardsportsteamlobby.service.KeyBoardService;
 import ru.otus.yardsportsteamlobby.service.LocalizationService;
 
 import java.time.LocalDate;
 import java.time.Month;
 
-import static ru.otus.yardsportsteamlobby.enums.CreateGameState.EMPTY_TIME;
-
-@Component
-@RequiredArgsConstructor
-public class EmptyDateProcessor implements CreateGameProcessor {
+@Service
+public class EmptyDateProcessor extends AbstractCommonProcessor {
 
     private final CalendarService calendarService;
 
-    private final KeyBoardService keyBoardService;
+    private final CreateGameRequestByUserIdService createGameRequestByUserIdService;
 
-    private final LocalizationService localizationService;
+    public EmptyDateProcessor(BotStateService botStateService, KeyBoardService keyBoardService, LocalizationService localizationService,
+                              CalendarService calendarService, CreateGameRequestByUserIdService createGameRequestByUserIdService) {
+        super(botStateService, keyBoardService, localizationService);
+        this.calendarService = calendarService;
+        this.createGameRequestByUserIdService = createGameRequestByUserIdService;
+    }
 
     @Override
-    public SendMessage process(GameCreatingStateWithRequest gameData, Long chatId, String text, Long userId, String userRole) {
-        final var response = new SendMessage();
-        response.setChatId(chatId.toString());
+    protected void fillTheResponse(SendMessage sendMessage, Long chatId, Long userId, String text) {
         if (StringUtils.hasText(text) && text.startsWith(CallbackQuerySelect.SELECTED_MONTH_.name())) {
             final var daysOfMonthList = calendarService.fillDaysOfMonth(Month.valueOf(text.replace(CallbackQuerySelect.SELECTED_MONTH_.name(), "")));
-            response.setReplyMarkup(keyBoardService.createKeyboardMarkup(daysOfMonthList));
-            response.setText(localizationService.getLocalizedMessage("one-way.message.select-date", userId));
-            return response;
+            sendMessage.setReplyMarkup(keyBoardService.createKeyboardMarkup(daysOfMonthList));
+            sendMessage.setText(localizationService.getLocalizedMessage("one-way.message.select-date", userId));
+        } else {
+
+            //TODO надо разнести логику между SELECTED_MONTH_ и SELECTED_DATE_ в разные процессоры!!!
+
+            final var currentCreateGameRequest = createGameRequestByUserIdService.getCurrentCreateGameRequest(userId)
+                    .map(CreateGameRequestByUserId::getCreateGameRequest)
+                    .orElse(new CreateGameRequest());
+            final var gameDateTime = LocalDate.parse(text.replace(CallbackQuerySelect.SELECTED_DATE_.name(), "")).atStartOfDay();
+            currentCreateGameRequest.setGameDateTime(gameDateTime);
+            sendMessage.setText(localizationService.getLocalizedMessage("enter.message.game-time", userId));
+            createGameRequestByUserIdService.saveCurrentCreateGameRequest(userId, currentCreateGameRequest);
+            botStateService.saveBotStateForUser(userId, BotState.EMPTY_TIME);
         }
-        final var request = gameData.getCreateGameRequest();
-        final var gameDateTime = LocalDate.parse(text.replace(CallbackQuerySelect.SELECTED_DATE_.name(), "")).atStartOfDay();
-        request.setGameDateTime(gameDateTime);
-        gameData.setCreateGameState(EMPTY_TIME);
-        response.setText(localizationService.getLocalizedMessage("enter.message.game-time", userId));
-        return response;
     }
 }

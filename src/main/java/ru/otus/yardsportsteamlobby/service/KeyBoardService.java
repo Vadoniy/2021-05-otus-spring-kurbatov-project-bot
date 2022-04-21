@@ -10,6 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
+import ru.otus.yardsportsteamlobby.enums.BotState;
 import ru.otus.yardsportsteamlobby.enums.CallbackQuerySelect;
 import ru.otus.yardsportsteamlobby.enums.MainMenuSelect;
 import ru.otus.yardsportsteamlobby.enums.UserRole;
@@ -50,10 +51,10 @@ public class KeyBoardService {
         final var inlineKeyboardMarkup = new InlineKeyboardMarkup();
         final var yesButton = new InlineKeyboardButton();
         yesButton.setText(localizationService.getLocalizedMessage("select.yes", userId));
-        yesButton.setCallbackData(CallbackQuerySelect.SURE_TO_DELETE_PLAYER.name());
+        yesButton.setCallbackData(BotState.SURE_TO_DELETE_PLAYER.name());
         final var noButton = new InlineKeyboardButton();
         noButton.setText(localizationService.getLocalizedMessage("select.no", userId));
-        noButton.setCallbackData(CallbackQuerySelect.NOT_SURE_TO_DELETE_PLAYER.name());
+        noButton.setCallbackData(BotState.NOT_SURE_TO_DELETE_PLAYER.name());
         final var keyboardButtonsRow1 = new ArrayList<InlineKeyboardButton>();
         keyboardButtonsRow1.add(yesButton);
         keyboardButtonsRow1.add(noButton);

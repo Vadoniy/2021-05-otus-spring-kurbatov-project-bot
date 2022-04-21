@@ -1,56 +1,35 @@
 package ru.otus.yardsportsteamlobby.command.processor.player_menu;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import ru.otus.yardsportsteamlobby.client.YardSportsTeamLobbyClient;
-import ru.otus.yardsportsteamlobby.command.processor.PlayerMenuProcessor;
-import ru.otus.yardsportsteamlobby.dto.RegistrationStateWithRequest;
-import ru.otus.yardsportsteamlobby.enums.CallbackQuerySelect;
-import ru.otus.yardsportsteamlobby.enums.PlayerRegistrationState;
-import ru.otus.yardsportsteamlobby.enums.UserRole;
+import ru.otus.yardsportsteamlobby.command.processor.AbstractCommonProcessor;
+import ru.otus.yardsportsteamlobby.enums.BotState;
+import ru.otus.yardsportsteamlobby.repository.DeletePlayerRequestByUserIdRepository;
+import ru.otus.yardsportsteamlobby.service.BotStateService;
 import ru.otus.yardsportsteamlobby.service.KeyBoardService;
 import ru.otus.yardsportsteamlobby.service.LocalizationService;
-import ru.otus.yardsportsteamlobby.service.UserRoleService;
-import ru.otus.yardsportsteamlobby.service.cache.PlayerCache;
 
-import java.util.Optional;
+@Service
+public class DeletePlayerProcessor extends AbstractCommonProcessor {
 
-@Component
-@RequiredArgsConstructor
-public class DeletePlayerProcessor implements PlayerMenuProcessor {
+    private final DeletePlayerRequestByUserIdRepository deletePlayerRequestByUserIdRepository;
 
-    private final KeyBoardService keyBoardService;
-
-    private final LocalizationService localizationService;
-
-    private final PlayerCache playerCache;
-
-    private final UserRoleService userRoleService;
-
-    private final YardSportsTeamLobbyClient yardSportsTeamLobbyClient;
+    public DeletePlayerProcessor(BotStateService botStateService, KeyBoardService keyBoardService, LocalizationService localizationService,
+                                 DeletePlayerRequestByUserIdRepository deletePlayerRequestByUserIdRepository) {
+        super(botStateService, keyBoardService, localizationService);
+        this.deletePlayerRequestByUserIdRepository = deletePlayerRequestByUserIdRepository;
+    }
 
     @Override
-    public SendMessage process(RegistrationStateWithRequest userData, Long chatId, String text, Long userId) {
-        final var response = new SendMessage();
-        response.setChatId(chatId.toString());
-        if (PlayerRegistrationState.DELETE == userData.getPlayerRegistrationState()) {
-            if (CallbackQuerySelect.SURE_TO_DELETE_PLAYER == CallbackQuerySelect.valueOf(text)) {
-                final var newRole = yardSportsTeamLobbyClient.sendDeletePlayerRequest(userId.toString());
-                response.setText(localizationService.getLocalizedMessage("one-way.message.request-is-sent", userId));
-                userRoleService.updateUsersRole(userId, Optional.ofNullable(newRole.getBody()).orElse(UserRole.NEW.name()));
-            } else {
-                response.setText(localizationService.getLocalizedMessage("one-way.message.request-is-deleted", userId));
-            }
-            playerCache.removeData(userId);
-            response.setReplyMarkup(keyBoardService.createMainMenuKeyboard(userId, userRoleService.getUserRoleByUserId(userId)));
-        } else {
-            final var registrationStateWithRequest = new RegistrationStateWithRequest()
-                    .setPlayerRegistrationState(PlayerRegistrationState.DELETE);
-            playerCache.addData(userId, registrationStateWithRequest);
-            response.setReplyMarkup(keyBoardService.createSelectYesNoMarkup(userId));
-            response.setText(localizationService.getLocalizedMessage("one-way.message.sure", userId));
-        }
-        return response;
+    public SendMessage process(Long chatId, Long userId, String text, String userRole) {
+        return super.process(chatId, userId, text, userRole);
+    }
+
+    @Override
+    protected void fillTheResponse(SendMessage sendMessage, Long chatId, Long userId, String text) {
+        deletePlayerRequestByUserIdRepository.save(userId);
+        sendMessage.setReplyMarkup(keyBoardService.createSelectYesNoMarkup(userId));
+        sendMessage.setText(localizationService.getLocalizedMessage("one-way.message.sure", userId));
+        botStateService.saveBotStateForUser(userId, BotState.DELETE);
     }
 }

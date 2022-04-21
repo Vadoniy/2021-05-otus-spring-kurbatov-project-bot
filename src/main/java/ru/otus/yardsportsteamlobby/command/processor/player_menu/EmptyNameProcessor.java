@@ -1,26 +1,40 @@
 package ru.otus.yardsportsteamlobby.command.processor.player_menu;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import ru.otus.yardsportsteamlobby.command.processor.PlayerMenuProcessor;
-import ru.otus.yardsportsteamlobby.dto.RegistrationStateWithRequest;
-import ru.otus.yardsportsteamlobby.enums.PlayerRegistrationState;
+import ru.otus.yardsportsteamlobby.command.processor.AbstractCommonProcessor;
+import ru.otus.yardsportsteamlobby.dto.CreatePlayerRequest;
+import ru.otus.yardsportsteamlobby.enums.BotState;
+import ru.otus.yardsportsteamlobby.repository.redis.CreatePlayerRequestByUserId;
+import ru.otus.yardsportsteamlobby.service.BotStateService;
+import ru.otus.yardsportsteamlobby.service.CreatePlayerRequestByUserIdService;
+import ru.otus.yardsportsteamlobby.service.KeyBoardService;
 import ru.otus.yardsportsteamlobby.service.LocalizationService;
 
-@Component
-@RequiredArgsConstructor
-public class EmptyNameProcessor implements PlayerMenuProcessor {
+@Service
+public class EmptyNameProcessor extends AbstractCommonProcessor {
 
-    private final LocalizationService localizationService;
+    private final CreatePlayerRequestByUserIdService createPlayerRequestByUserIdService;
+
+    public EmptyNameProcessor(BotStateService botStateService, KeyBoardService keyBoardService,
+                              LocalizationService localizationService, CreatePlayerRequestByUserIdService createPlayerRequestByUserIdService) {
+        super(botStateService, keyBoardService, localizationService);
+        this.createPlayerRequestByUserIdService = createPlayerRequestByUserIdService;
+    }
 
     @Override
-    public SendMessage process(RegistrationStateWithRequest userData, Long chatId, String text, Long userId) {
-        final var response = new SendMessage();
-        response.setChatId(chatId.toString());
-        userData.getCreatePlayerRequest().setName(text);
-        response.setText(localizationService.getLocalizedMessage("one-way.message.enter-your-phone", userId));
-        userData.setPlayerRegistrationState(PlayerRegistrationState.EMPTY_PHONE);
-        return response;
+    public SendMessage process(Long chatId, Long userId, String text, String userRole) {
+        return super.process(chatId, userId, text, userRole);
+    }
+
+    @Override
+    protected void fillTheResponse(SendMessage sendMessage, Long chatId, Long userId, String text) {
+        sendMessage.setText(localizationService.getLocalizedMessage("one-way.message.enter-your-phone", userId));
+        final var currentCreatePlayerRequest = createPlayerRequestByUserIdService.getCurrentCreatePlayerRequest(userId)
+                .map(CreatePlayerRequestByUserId::getCreatePlayerRequest)
+                .map(createPlayerRequest -> createPlayerRequest.setName(text))
+                .orElse(new CreatePlayerRequest().setUserId(userId).setName(text));
+        createPlayerRequestByUserIdService.saveCurrentCreateGameRequest(userId, currentCreatePlayerRequest);
+        botStateService.saveBotStateForUser(userId, BotState.EMPTY_PHONE);
     }
 }

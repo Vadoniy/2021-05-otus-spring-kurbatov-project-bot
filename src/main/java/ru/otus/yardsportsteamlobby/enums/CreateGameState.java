@@ -2,10 +2,11 @@ package ru.otus.yardsportsteamlobby.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import ru.otus.yardsportsteamlobby.command.processor.CreateGameProcessor;
+import ru.otus.yardsportsteamlobby.command.processor.TelegramMessageProcessor;
 import ru.otus.yardsportsteamlobby.command.processor.create_game.EmptyCapacityProcessor;
 import ru.otus.yardsportsteamlobby.command.processor.create_game.EmptyDateProcessor;
-import ru.otus.yardsportsteamlobby.command.processor.create_game.EmptyTeamProcessor;
+import ru.otus.yardsportsteamlobby.command.processor.create_game.EmptyTeamAProcessor;
+import ru.otus.yardsportsteamlobby.command.processor.create_game.EmptyTeamBProcessor;
 import ru.otus.yardsportsteamlobby.command.processor.create_game.EmptyTimeProcessor;
 
 @Getter
@@ -18,9 +19,9 @@ public enum CreateGameState {
 
     EMPTY_CAPACITY(EmptyCapacityProcessor.class),
 
-    EMPTY_TEAM_1_NAME(EmptyTeamProcessor.class),
+    EMPTY_TEAM_1_NAME(EmptyTeamAProcessor.class),
 
-    EMPTY_TEAM_2_NAME(EmptyTeamProcessor.class);
+    EMPTY_TEAM_2_NAME(EmptyTeamBProcessor.class);
 
-    private final Class<? extends CreateGameProcessor> processor;
+    private final Class<? extends TelegramMessageProcessor> processor;
 }
