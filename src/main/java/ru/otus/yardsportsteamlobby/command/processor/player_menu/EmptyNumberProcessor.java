@@ -32,7 +32,7 @@ public class EmptyNumberProcessor extends AbstractCommonProcessor {
     }
 
     @Override
-    protected void fillTheResponse(SendMessage sendMessage, Long chatId, Long userId, String text) {
+    protected void fillTheResponse(SendMessage sendMessage, Long chatId, Long userId, String text, String userRole) {
         try {
             final var currentCreatePlayerRequest = createPlayerRequestByUserIdService.getCurrentCreatePlayerRequest(userId)
                     .map(CreatePlayerRequestByUserId::getCreatePlayerRequest)

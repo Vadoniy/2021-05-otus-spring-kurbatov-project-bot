@@ -11,11 +11,8 @@ import ru.otus.yardsportsteamlobby.service.LocalizationService;
 @Service
 public class DeleteOrNotPlayerProcessor extends AbstractCommonProcessor {
 
-    private final KeyBoardService keyBoardService;
-
-    public DeleteOrNotPlayerProcessor(BotStateService botStateService, LocalizationService localizationService, KeyBoardService keyBoardService) {
-        super(botStateService, localizationService);
-        this.keyBoardService = keyBoardService;
+    public DeleteOrNotPlayerProcessor(BotStateService botStateService, KeyBoardService keyBoardService, LocalizationService localizationService) {
+        super(botStateService, keyBoardService, localizationService);
     }
 
     @Override
@@ -23,7 +20,7 @@ public class DeleteOrNotPlayerProcessor extends AbstractCommonProcessor {
         return super.process(chatId, userId, text, userRole);
     }
 
-    protected void fillTheResponse(SendMessage sendMessage, Long chatId, Long userId, String text) {
+    protected void fillTheResponse(SendMessage sendMessage, Long chatId, Long userId, String text, String userRole) {
         sendMessage.setText(localizationService.getLocalizedMessage("one-way.message.sure", userId));
         sendMessage.setReplyMarkup(keyBoardService.createSelectYesNoMarkup(userId));
         botStateService.saveBotStateForUser(userId, BotState.DELETE);

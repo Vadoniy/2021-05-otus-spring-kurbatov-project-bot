@@ -23,10 +23,10 @@ public class BotStateService {
     }
 
     public void saveBotStateForUser(Long userId, BotState botState) {
-        botStateRepository.findById(userId.toString())
-                .ifPresentOrElse(botStateForCurrentUser ->
-                                botStateForCurrentUser.setBotState(botState),
-                        () -> new BotStateForCurrentUser(userId.toString(), botState));
+        final var botStateForCurrentUser = botStateRepository.findById(userId.toString())
+                .orElse(new BotStateForCurrentUser().setUserId(userId.toString()));
+        botStateForCurrentUser.setBotState(botState);
+        botStateRepository.save(botStateForCurrentUser);
         log.info("New state {} for user {}", botState, userId);
     }
 }

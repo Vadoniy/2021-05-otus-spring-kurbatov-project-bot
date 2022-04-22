@@ -30,7 +30,7 @@ public class EmptyPhoneProcessor extends AbstractCommonProcessor {
     }
 
     @Override
-    protected void fillTheResponse(SendMessage sendMessage, Long chatId, Long userId, String text) {
+    protected void fillTheResponse(SendMessage sendMessage, Long chatId, Long userId, String text, String userRole) {
         if (Pattern.matches("\\d{10,11}", text)) {
             final var currentCreatePlayerRequest = createPlayerRequestByUserIdService.getCurrentCreatePlayerRequest(userId)
                     .map(CreatePlayerRequestByUserId::getCreatePlayerRequest)

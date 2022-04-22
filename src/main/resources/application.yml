@@ -1,7 +1,7 @@
 telegrambot:
   user-name: "@YardSportsTeamLobbyBot"
   bot-token: 2023056122:AAHe9L2xN363Bvrch7RUOyw1byw5hR6I1g4
-  webhook-path: https://f28c-34-253-143-52.ngrok.io
+  webhook-path: https://3feb-178-218-22-211.ngrok.io
 
 server:
   port: 5000

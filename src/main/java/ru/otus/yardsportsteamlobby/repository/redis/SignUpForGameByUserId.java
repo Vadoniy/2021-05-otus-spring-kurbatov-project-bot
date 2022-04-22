@@ -5,22 +5,20 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.experimental.Accessors;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
-import ru.otus.yardsportsteamlobby.enums.BotState;
+import ru.otus.yardsportsteamlobby.dto.SignUpForGameRequest;
 
-@RedisHash("bot_state")
+@RedisHash("sign_up_for_game_by_user_id")
 @Getter
 @Setter
-@Accessors(chain = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class BotStateForCurrentUser {
+public class SignUpForGameByUserId {
 
     @Id
     private String userId;
 
-    private BotState botState;
+    private SignUpForGameRequest signUpForGameRequest;
 }

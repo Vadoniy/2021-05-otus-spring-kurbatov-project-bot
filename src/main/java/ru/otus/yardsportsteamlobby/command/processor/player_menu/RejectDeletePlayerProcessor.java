@@ -31,7 +31,7 @@ public class RejectDeletePlayerProcessor extends AbstractCommonProcessor {
     }
 
     @Override
-    protected void fillTheResponse(SendMessage sendMessage, Long chatId, Long userId, String text) {
+    protected void fillTheResponse(SendMessage sendMessage, Long chatId, Long userId, String text, String userRole) {
         sendMessage.setText(localizationService.getLocalizedMessage("one-way.message.request-is-deleted", userId));
         deletePlayerRequestByUserIdService.removeDeletePlayerIdRequest(userId);
         sendMessage.setReplyMarkup(keyBoardService.createMainMenuKeyboard(userId, userRoleService.getUserRoleByUserId(userId)));

@@ -3,7 +3,7 @@ package ru.otus.yardsportsteamlobby.command.processor;
 import lombok.RequiredArgsConstructor;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import ru.otus.yardsportsteamlobby.enums.CallbackQuerySelect;
+import ru.otus.yardsportsteamlobby.enums.Prefix;
 import ru.otus.yardsportsteamlobby.service.BotStateService;
 import ru.otus.yardsportsteamlobby.service.KeyBoardService;
 import ru.otus.yardsportsteamlobby.service.LocalizationService;
@@ -24,14 +24,14 @@ public abstract class AbstractCommonProcessor implements TelegramMessageProcesso
     public SendMessage process(Long chatId, Long userId, String text, String userRole) {
         final var response = new SendMessage();
         response.setChatId(chatId.toString());
-        fillTheResponse(response, chatId, userId, text);
+        fillTheResponse(response, chatId, userId, text, userRole);
         return response;
     }
 
     protected ArrayList<List<InlineKeyboardButton>> createSkipButton(Long userId) {
         final var skipButton = new InlineKeyboardButton();
         skipButton.setText(localizationService.getLocalizedMessage("select.skip", userId));
-        skipButton.setCallbackData(CallbackQuerySelect.SKIP.name());
+        skipButton.setCallbackData(Prefix.SKIP.name());
         final var keyboardButtonsRow1 = new ArrayList<InlineKeyboardButton>();
         keyboardButtonsRow1.add(skipButton);
         final var keyBoardList = new ArrayList<List<InlineKeyboardButton>>(1);
@@ -39,5 +39,5 @@ public abstract class AbstractCommonProcessor implements TelegramMessageProcesso
         return keyBoardList;
     }
 
-    protected abstract void fillTheResponse(SendMessage sendMessage, Long chatId, Long userId, String text);
+    protected abstract void fillTheResponse(SendMessage sendMessage, Long chatId, Long userId, String text, String userRole);
 }

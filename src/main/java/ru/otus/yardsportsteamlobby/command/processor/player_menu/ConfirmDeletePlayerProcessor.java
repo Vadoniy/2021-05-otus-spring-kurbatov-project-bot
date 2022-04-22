@@ -38,7 +38,7 @@ public class ConfirmDeletePlayerProcessor extends AbstractCommonProcessor {
     }
 
     @Override
-    protected void fillTheResponse(SendMessage sendMessage, Long chatId, Long userId, String text) {
+    protected void fillTheResponse(SendMessage sendMessage, Long chatId, Long userId, String text, String userRole) {
         final var newRole = yardSportsTeamLobbyClient.sendDeletePlayerRequest(userId.toString());
         sendMessage.setText(localizationService.getLocalizedMessage("one-way.message.request-is-sent", userId));
         userRoleService.updateUsersRole(userId, Optional.ofNullable(newRole.getBody()).orElse(UserRole.NEW.name()));

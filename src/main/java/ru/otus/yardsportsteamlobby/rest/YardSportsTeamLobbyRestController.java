@@ -18,7 +18,6 @@ public class YardSportsTeamLobbyRestController {
 
     @PostMapping("/")
     public BotApiMethod<?> onUpdateReceived(@RequestBody Update update) {
-//        log.info("Received message from {}: {}", update.getMessage().getFrom().getUserName(), update.getMessage().getText());
         return yardSportsTeamLobbyWebhookBot.onWebhookUpdateReceived(update);
     }
 }

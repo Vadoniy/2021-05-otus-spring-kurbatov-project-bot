@@ -1,6 +1,5 @@
 package ru.otus.yardsportsteamlobby.service;
 
-import com.vdurmont.emoji.EmojiParser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -11,8 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import ru.otus.yardsportsteamlobby.enums.BotState;
-import ru.otus.yardsportsteamlobby.enums.CallbackQuerySelect;
-import ru.otus.yardsportsteamlobby.enums.MainMenuSelect;
+import ru.otus.yardsportsteamlobby.enums.MainMenuButtonName;
 import ru.otus.yardsportsteamlobby.enums.UserRole;
 
 import java.util.ArrayList;
@@ -34,10 +32,10 @@ public class KeyBoardService {
         final var inlineKeyboardMarkup = new InlineKeyboardMarkup();
         final var fieldButton = new InlineKeyboardButton();
         fieldButton.setText(localizationService.getLocalizedMessage("select.field", userId));
-        fieldButton.setCallbackData(CallbackQuerySelect.FIELD.name());
+        fieldButton.setCallbackData(BotState.FIELD.name());
         final var uniquePositionButton = new InlineKeyboardButton();
         uniquePositionButton.setText(localizationService.getLocalizedMessage("select.unique", userId));
-        uniquePositionButton.setCallbackData(CallbackQuerySelect.UNIQUE.name());
+        uniquePositionButton.setCallbackData(BotState.UNIQUE.name());
         final var keyboardButtonsRow1 = new ArrayList<InlineKeyboardButton>();
         keyboardButtonsRow1.add(fieldButton);
         keyboardButtonsRow1.add(uniquePositionButton);
@@ -71,26 +69,25 @@ public class KeyBoardService {
         replyKeyboardMarkup.setOneTimeKeyboard(false);
         final var keyboard = new ArrayList<KeyboardRow>();
         final var row1 = new KeyboardRow();
-        row1.add(new KeyboardButton(resolveButtonText(MainMenuSelect.REGISTER, userId)));
+        row1.add(new KeyboardButton(localizationService.getLocalizedMessage(MainMenuButtonName.REGISTER.getButtonNamePath(), userId)));
         keyboard.add(row1);
         if (UserRole.USER.name().equals(userRole) || UserRole.ADMIN.name().equals(userRole)) {
             final var row2 = new KeyboardRow();
-            row2.add(new KeyboardButton(resolveButtonText(MainMenuSelect.SIGN_UP_FOR_GAME, userId)));
+            row2.add(new KeyboardButton(localizationService.getLocalizedMessage(MainMenuButtonName.SIGN_UP_FOR_GAME.getButtonNamePath(), userId)));
             keyboard.add(row2);
         }
         if (UserRole.USER.name().equals(userRole)) {
             final var row3 = new KeyboardRow();
-            row3.add(new KeyboardButton(resolveButtonText(MainMenuSelect.DELETE_PLAYER, userId)));
+            row3.add(new KeyboardButton(localizationService.getLocalizedMessage(MainMenuButtonName.DELETE_PLAYER.getButtonNamePath(), userId)));
             keyboard.add(row3);
         }
         if (UserRole.ADMIN.name().equals(userRole)) {
             final var row4 = new KeyboardRow();
-            row4.add(new KeyboardButton(resolveButtonText(MainMenuSelect.CREATE_GAME, userId)));
+            row4.add(new KeyboardButton(localizationService.getLocalizedMessage(MainMenuButtonName.CREATE_GAME.getButtonNamePath(), userId)));
             keyboard.add(row4);
         }
         final var row5 = new KeyboardRow();
-        row5.add(new KeyboardButton(resolveButtonText(MainMenuSelect.RU, userId)));
-        row5.add(new KeyboardButton(resolveButtonText(MainMenuSelect.EN, userId)));
+        row5.add(new KeyboardButton(localizationService.getLocalizedMessage(MainMenuButtonName.RU.getButtonNamePath(), userId)));
         keyboard.add(row5);
         replyKeyboardMarkup.setKeyboard(keyboard);
         replyKeyboardMarkup.setOneTimeKeyboard(true);
@@ -98,7 +95,7 @@ public class KeyBoardService {
     }
 
     public SendMessage createMainMenuKeyboardMessage(long userId, String userRole) {
-        final var textMessage = localizationService.getLocalizedMessage("main.menu.greetings", userId);
+        final var textMessage = localizationService.getLocalizedMessage(MainMenuButtonName.GREETINGS.getButtonNamePath(), userId);
         return createKeyboardMessage(userId, textMessage, createMainMenuKeyboard(userId, userRole));
     }
 
@@ -111,10 +108,5 @@ public class KeyBoardService {
             sendMessage.setReplyMarkup(keyboardMarkup);
         }
         return sendMessage;
-    }
-
-    private String resolveButtonText(MainMenuSelect mainMenuSelect, Long userId) {
-        final var emoji = EmojiParser.parseToUnicode(mainMenuSelect.getEmoji());
-        return localizationService.getLocalizedMessage(mainMenuSelect.getMessage(), userId) + emoji;
     }
 }

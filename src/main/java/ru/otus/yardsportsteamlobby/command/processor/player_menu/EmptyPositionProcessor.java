@@ -38,7 +38,7 @@ public class EmptyPositionProcessor extends AbstractCommonProcessor {
     }
 
     @Override
-    protected void fillTheResponse(SendMessage sendMessage, Long chatId, Long userId, String text) {
+    protected void fillTheResponse(SendMessage sendMessage, Long chatId, Long userId, String text, String userRole) {
         final var currentCreatePlayerRequest = createPlayerRequestByUserIdService.getCurrentCreatePlayerRequest(userId)
                 .map(CreatePlayerRequestByUserId::getCreatePlayerRequest)
                 .map(createPlayerRequest -> createPlayerRequest.setPosition(BotState.valueOf(text)))

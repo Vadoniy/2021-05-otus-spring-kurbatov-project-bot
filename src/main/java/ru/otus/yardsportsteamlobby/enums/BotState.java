@@ -3,49 +3,42 @@ package ru.otus.yardsportsteamlobby.enums;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import ru.otus.yardsportsteamlobby.command.processor.TelegramMessageProcessor;
-import ru.otus.yardsportsteamlobby.command.processor.callback_quey.DeleteOrNotPlayerProcessor;
 import ru.otus.yardsportsteamlobby.command.processor.callback_quey.GameSelectStateProcessor;
-import ru.otus.yardsportsteamlobby.command.processor.callback_quey.SelectDateProcessor;
-import ru.otus.yardsportsteamlobby.command.processor.callback_quey.SelectPositionProcessor;
-import ru.otus.yardsportsteamlobby.command.processor.callback_quey.SkipTeamsNameProcessor;
 import ru.otus.yardsportsteamlobby.command.processor.callback_quey.TeamSelectStateProcessor;
 import ru.otus.yardsportsteamlobby.command.processor.create_game.EmptyCapacityProcessor;
 import ru.otus.yardsportsteamlobby.command.processor.create_game.EmptyDateProcessor;
+import ru.otus.yardsportsteamlobby.command.processor.create_game.EmptyMonthProcessor;
 import ru.otus.yardsportsteamlobby.command.processor.create_game.EmptyTeamAProcessor;
 import ru.otus.yardsportsteamlobby.command.processor.create_game.EmptyTeamBProcessor;
 import ru.otus.yardsportsteamlobby.command.processor.create_game.EmptyTimeProcessor;
-import ru.otus.yardsportsteamlobby.command.processor.main_menu.MainMenuCreateGameProcessor;
-import ru.otus.yardsportsteamlobby.command.processor.main_menu.MainMenuDeletePlayerProcessor;
 import ru.otus.yardsportsteamlobby.command.processor.main_menu.MainMenuKeyboardProcessor;
 import ru.otus.yardsportsteamlobby.command.processor.main_menu.RegisterProcessor;
 import ru.otus.yardsportsteamlobby.command.processor.main_menu.SignUpForGameProcessor;
+import ru.otus.yardsportsteamlobby.command.processor.player_menu.ConfirmDeletePlayerProcessor;
 import ru.otus.yardsportsteamlobby.command.processor.player_menu.DeletePlayerProcessor;
 import ru.otus.yardsportsteamlobby.command.processor.player_menu.EmptyNameProcessor;
 import ru.otus.yardsportsteamlobby.command.processor.player_menu.EmptyNumberProcessor;
 import ru.otus.yardsportsteamlobby.command.processor.player_menu.EmptyPhoneProcessor;
 import ru.otus.yardsportsteamlobby.command.processor.player_menu.EmptyPositionProcessor;
+import ru.otus.yardsportsteamlobby.command.processor.player_menu.RejectDeletePlayerProcessor;
 
 @Getter
 @RequiredArgsConstructor
 public enum BotState {
 
-    FIELD(SelectPositionProcessor.class),
+    FIELD(EmptyPositionProcessor.class),
 
-    UNIQUE(SelectPositionProcessor.class),
+    UNIQUE(EmptyPositionProcessor.class),
 
-    SURE_TO_DELETE_PLAYER(DeleteOrNotPlayerProcessor.class),
+    SURE_TO_DELETE_PLAYER(ConfirmDeletePlayerProcessor.class),
 
-    NOT_SURE_TO_DELETE_PLAYER(DeleteOrNotPlayerProcessor.class),
-
-    SKIP(SkipTeamsNameProcessor.class),
+    NOT_SURE_TO_DELETE_PLAYER(RejectDeletePlayerProcessor.class),
 
     SELECTED_GAME_(GameSelectStateProcessor.class),
 
     SELECTED_TEAM_(TeamSelectStateProcessor.class),
 
-    SELECTED_MONTH_(SelectDateProcessor.class),
-
-    SELECTED_DATE_(SelectDateProcessor.class),
+    EMPTY_MONTH(EmptyMonthProcessor.class),
 
     EMPTY_DATE(EmptyDateProcessor.class),
 
@@ -67,9 +60,11 @@ public enum BotState {
 
     SIGN_UP_FOR_GAME(SignUpForGameProcessor.class),
 
-    CREATE_GAME(MainMenuCreateGameProcessor.class),
+    CREATE_GAME(EmptyMonthProcessor.class),
 
-    DELETE_PLAYER(MainMenuDeletePlayerProcessor.class),
+    DELETE(DeletePlayerProcessor.class),
+
+    DELETE_PLAYER(DeletePlayerProcessor.class),
 
     EMPTY_NAME(EmptyNameProcessor.class),
 
@@ -77,9 +72,7 @@ public enum BotState {
 
     EMPTY_POSITION(EmptyPositionProcessor.class),
 
-    EMPTY_NUMBER(EmptyNumberProcessor.class),
-
-    DELETE(DeletePlayerProcessor.class);
+    EMPTY_NUMBER(EmptyNumberProcessor.class);
 
     private final Class<? extends TelegramMessageProcessor> processor;
 }

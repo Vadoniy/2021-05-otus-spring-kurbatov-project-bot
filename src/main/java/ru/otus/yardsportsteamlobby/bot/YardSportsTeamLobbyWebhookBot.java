@@ -5,15 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramWebhookBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.otus.yardsportsteamlobby.configuration.properties.TelegramBotConfigurationProperties;
 import ru.otus.yardsportsteamlobby.service.UpdateService;
 import ru.otus.yardsportsteamlobby.service.UserRoleService;
-
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -40,14 +36,15 @@ public class YardSportsTeamLobbyWebhookBot extends TelegramWebhookBot {
 
     @Override
     public BotApiMethod<?> onWebhookUpdateReceived(Update update) {
-        final var from = Optional.ofNullable(getFrom(update.getCallbackQuery()))
-                .orElse(getFrom(update.getMessage()))
-                .orElse("Unknown contact");
-        final var text = Optional.ofNullable(getText(update.getCallbackQuery()))
-                .orElse(getText(update.getMessage()))
-                .orElse("Unknown contact");
-        final var chatId = update.getChatMember().getChat().getId();
-        final var userId = update.getChatMember().getFrom().getId();
+        final var from = getFrom(update);
+        final var text = getText(update);
+        final var chatId = getChatId(update);
+        final var userId = getUserId(update);
+
+        if (chatId == null || userId == null) {
+            log.error("Smth is wrong");
+        }
+
         final var userRole = userRoleService.getUserRoleByUserId(userId);
 
         log.info(String.format(NEW_RECEIVED_MESSAGE_LOG, from, text));
@@ -60,26 +57,52 @@ public class YardSportsTeamLobbyWebhookBot extends TelegramWebhookBot {
         return telegramBotConfigurationProperties.getWebhookPath();
     }
 
-    private Optional<String> getFrom(CallbackQuery callbackQuery) {
-        return Optional.ofNullable(callbackQuery)
-                .map(CallbackQuery::getFrom)
-                .map(User::getUserName);
+    private User getFrom(Update update) {
+        if (update.hasCallbackQuery()) {
+            return update.getCallbackQuery().getFrom();
+        }
+        if (update.getMessage() != null) {
+            return update.getMessage().getFrom();
+        }
+        if (update.getMyChatMember() != null) {
+            return update.getMyChatMember().getFrom();
+        }
+        return null;
     }
 
-    private Optional<String> getFrom(Message message) {
-        return Optional.ofNullable(message)
-                .map(Message::getFrom)
-                .map(User::getUserName);
+    private String getText(Update update) {
+        if (update.hasCallbackQuery()) {
+            return update.getCallbackQuery().getData();
+        }
+        if (update.getMessage() != null) {
+            return update.getMessage().getText();
+        }
+        return null;
     }
 
-    private Optional<String> getText(CallbackQuery callbackQuery) {
-        return Optional.ofNullable(callbackQuery)
-                .map(CallbackQuery::getMessage)
-                .map(Message::getText);
+    private Long getChatId(Update update) {
+        if (update.hasCallbackQuery()) {
+            return update.getCallbackQuery().getMessage().getChatId();
+        }
+        if (update.getMessage() != null) {
+            return update.getMessage().getChatId();
+        }
+        if (update.getMyChatMember() != null) {
+            return update.getMyChatMember().getChat().getId();
+        }
+        return null;
     }
 
-    private Optional<String> getText(Message message) {
-        return Optional.ofNullable(message)
-                .map(Message::getText);
+    private Long getUserId(Update update) {
+        if (update.hasCallbackQuery()) {
+            return update.getCallbackQuery().getMessage().getFrom().getId();
+        }
+        if (update.getMessage() != null) {
+            return update.getMessage().getFrom().getId();
+        }
+        if (update.getMyChatMember() != null) {
+            return update.getMyChatMember().getFrom().getId();
+        }
+        return null;
     }
 }
