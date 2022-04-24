@@ -25,18 +25,12 @@ public class EmptyPhoneProcessor extends AbstractCommonProcessor {
     }
 
     @Override
-    public SendMessage process(Long chatId, Long userId, String text, String userRole) {
-        return super.process(chatId, userId, text, userRole);
-    }
-
-    @Override
     protected void fillTheResponse(SendMessage sendMessage, Long chatId, Long userId, String text, String userRole) {
         if (Pattern.matches("\\d{10,11}", text)) {
             final var currentCreatePlayerRequest = createPlayerRequestByUserIdService.getCurrentCreatePlayerRequest(userId)
                     .map(CreatePlayerRequestByUserId::getCreatePlayerRequest)
                     .map(createPlayerRequest -> createPlayerRequest.setPhone(text))
                     .orElse(new CreatePlayerRequest().setUserId(userId).setPhone(text));
-            currentCreatePlayerRequest.setPhone(text);
             createPlayerRequestByUserIdService.saveCurrentCreateGameRequest(userId, currentCreatePlayerRequest);
             sendMessage.setText(localizationService.getLocalizedMessage("one-way.message.enter-number", userId));
         } else {

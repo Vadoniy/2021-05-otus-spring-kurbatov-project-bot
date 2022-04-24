@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.Accessors;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import ru.otus.yardsportsteamlobby.dto.CreatePlayerRequest;
@@ -14,6 +15,7 @@ import ru.otus.yardsportsteamlobby.dto.CreatePlayerRequest;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Accessors(chain = true)
 @ToString
 public class CreatePlayerRequestByUserId {
 

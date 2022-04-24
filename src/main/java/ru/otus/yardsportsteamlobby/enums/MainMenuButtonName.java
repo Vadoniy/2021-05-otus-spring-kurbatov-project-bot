@@ -3,6 +3,8 @@ package ru.otus.yardsportsteamlobby.enums;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @RequiredArgsConstructor
 public enum MainMenuButtonName {
@@ -11,9 +13,9 @@ public enum MainMenuButtonName {
 
     REGISTER("main.menu.register", BotState.REGISTER),
 
-    RU("main.menu.locale.ru", BotState.RU),
+    ru("main.menu.locale.ru", BotState.RU),
 
-    EN("main.menu.locale.en", BotState.EN),
+    en("main.menu.locale.en", BotState.EN),
 
     SIGN_UP_FOR_GAME("main.menu.sign-up-for-game", BotState.SIGN_UP_FOR_GAME),
 
@@ -28,6 +30,15 @@ public enum MainMenuButtonName {
     public static MainMenuButtonName fromValue(String value) {
         for (MainMenuButtonName mainMenuButtonName : MainMenuButtonName.values()) {
             if (mainMenuButtonName.getButtonNamePath().equals(value)) {
+                return mainMenuButtonName;
+            }
+        }
+        return null;
+    }
+
+    public static MainMenuButtonName fromLocale(String value) {
+        for (MainMenuButtonName mainMenuButtonName : List.of(ru, en)) {
+            if (mainMenuButtonName.toString().equals(value)) {
                 return mainMenuButtonName;
             }
         }

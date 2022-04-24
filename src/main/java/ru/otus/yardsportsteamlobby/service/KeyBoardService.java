@@ -15,6 +15,7 @@ import ru.otus.yardsportsteamlobby.enums.UserRole;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -87,7 +88,10 @@ public class KeyBoardService {
             keyboard.add(row4);
         }
         final var row5 = new KeyboardRow();
-        row5.add(new KeyboardButton(localizationService.getLocalizedMessage(MainMenuButtonName.RU.getButtonNamePath(), userId)));
+        final var MainMenuButtonsLang = Optional.ofNullable(MainMenuButtonName.fromLocale(localizationService.getCurrentLocale(userId)))
+                .map(mainMenuButtonName -> MainMenuButtonName.ru == mainMenuButtonName ? MainMenuButtonName.en : MainMenuButtonName.ru)
+                .orElse(MainMenuButtonName.ru);
+        row5.add(new KeyboardButton(localizationService.getLocalizedMessage(MainMenuButtonsLang.getButtonNamePath(), userId)));
         keyboard.add(row5);
         replyKeyboardMarkup.setKeyboard(keyboard);
         replyKeyboardMarkup.setOneTimeKeyboard(true);

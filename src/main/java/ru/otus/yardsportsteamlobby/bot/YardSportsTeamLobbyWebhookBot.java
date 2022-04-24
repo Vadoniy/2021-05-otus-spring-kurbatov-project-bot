@@ -11,6 +11,8 @@ import ru.otus.yardsportsteamlobby.configuration.properties.TelegramBotConfigura
 import ru.otus.yardsportsteamlobby.service.UpdateService;
 import ru.otus.yardsportsteamlobby.service.UserRoleService;
 
+import java.util.Optional;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -40,11 +42,6 @@ public class YardSportsTeamLobbyWebhookBot extends TelegramWebhookBot {
         final var text = getText(update);
         final var chatId = getChatId(update);
         final var userId = getUserId(update);
-
-        if (chatId == null || userId == null) {
-            log.error("Smth is wrong");
-        }
-
         final var userRole = userRoleService.getUserRoleByUserId(userId);
 
         log.info(String.format(NEW_RECEIVED_MESSAGE_LOG, from, text));
@@ -95,7 +92,9 @@ public class YardSportsTeamLobbyWebhookBot extends TelegramWebhookBot {
 
     private Long getUserId(Update update) {
         if (update.hasCallbackQuery()) {
-            return update.getCallbackQuery().getMessage().getFrom().getId();
+            return Optional.ofNullable(update.getCallbackQuery().getFrom())
+                    .map(User::getId)
+                    .orElse(update.getCallbackQuery().getMessage().getFrom().getId());
         }
         if (update.getMessage() != null) {
             return update.getMessage().getFrom().getId();

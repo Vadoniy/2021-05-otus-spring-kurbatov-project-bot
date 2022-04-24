@@ -11,8 +11,10 @@ import ru.otus.yardsportsteamlobby.command.processor.create_game.EmptyMonthProce
 import ru.otus.yardsportsteamlobby.command.processor.create_game.EmptyTeamAProcessor;
 import ru.otus.yardsportsteamlobby.command.processor.create_game.EmptyTeamBProcessor;
 import ru.otus.yardsportsteamlobby.command.processor.create_game.EmptyTimeProcessor;
+import ru.otus.yardsportsteamlobby.command.processor.main_menu.EnLocaleProcessor;
 import ru.otus.yardsportsteamlobby.command.processor.main_menu.MainMenuKeyboardProcessor;
 import ru.otus.yardsportsteamlobby.command.processor.main_menu.RegisterProcessor;
+import ru.otus.yardsportsteamlobby.command.processor.main_menu.RuLocaleProcessor;
 import ru.otus.yardsportsteamlobby.command.processor.main_menu.SignUpForGameProcessor;
 import ru.otus.yardsportsteamlobby.command.processor.player_menu.ConfirmDeletePlayerProcessor;
 import ru.otus.yardsportsteamlobby.command.processor.player_menu.DeletePlayerProcessor;
@@ -54,9 +56,9 @@ public enum BotState {
 
     REGISTER(RegisterProcessor.class),
 
-    RU(MainMenuKeyboardProcessor.class),
+    RU(RuLocaleProcessor.class),
 
-    EN(MainMenuKeyboardProcessor.class),
+    EN(EnLocaleProcessor.class),
 
     SIGN_UP_FOR_GAME(SignUpForGameProcessor.class),
 

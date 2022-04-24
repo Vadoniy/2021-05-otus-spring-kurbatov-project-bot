@@ -27,11 +27,6 @@ public class EmptyNumberProcessor extends AbstractCommonProcessor {
     }
 
     @Override
-    public SendMessage process(Long chatId, Long userId, String text, String userRole) {
-        return super.process(chatId, userId, text, userRole);
-    }
-
-    @Override
     protected void fillTheResponse(SendMessage sendMessage, Long chatId, Long userId, String text, String userRole) {
         try {
             final var currentCreatePlayerRequest = createPlayerRequestByUserIdService.getCurrentCreatePlayerRequest(userId)

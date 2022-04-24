@@ -50,6 +50,12 @@ public class LocalizationServiceImpl extends
                 .map(ResourceBundle::keySet)
                 .orElse(Set.of()).stream()
                 .filter(buttonNamePath -> buttonNamePath.startsWith(messagePath))
-                .collect(Collectors.toMap(buttonNamePath -> buttonNamePath, this::getLocalizedMessage));
+                .collect(Collectors.toMap(buttonNamePath -> buttonNamePath, buttonNamePath -> getLocalizedMessage(buttonNamePath, userId)));
+    }
+
+    @Override
+    public String getCurrentLocale(Long userId) {
+        return Optional.ofNullable(languageCache.getData(userId))
+                .orElse(businessConfigurationProperties.getLocale());
     }
 }

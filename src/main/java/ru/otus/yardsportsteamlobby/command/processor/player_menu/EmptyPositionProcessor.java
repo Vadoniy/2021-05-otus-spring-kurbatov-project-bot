@@ -1,5 +1,6 @@
 package ru.otus.yardsportsteamlobby.command.processor.player_menu;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -15,6 +16,7 @@ import ru.otus.yardsportsteamlobby.service.LocalizationService;
 import ru.otus.yardsportsteamlobby.service.UserRoleService;
 
 @Service
+@Slf4j
 public class EmptyPositionProcessor extends AbstractCommonProcessor {
 
     private final CreatePlayerRequestByUserIdService createPlayerRequestByUserIdService;
@@ -33,16 +35,12 @@ public class EmptyPositionProcessor extends AbstractCommonProcessor {
     }
 
     @Override
-    public SendMessage process(Long chatId, Long userId, String text, String userRole) {
-        return super.process(chatId, userId, text, userRole);
-    }
-
-    @Override
     protected void fillTheResponse(SendMessage sendMessage, Long chatId, Long userId, String text, String userRole) {
         final var currentCreatePlayerRequest = createPlayerRequestByUserIdService.getCurrentCreatePlayerRequest(userId)
                 .map(CreatePlayerRequestByUserId::getCreatePlayerRequest)
                 .map(createPlayerRequest -> createPlayerRequest.setPosition(BotState.valueOf(text)))
                 .orElse(new CreatePlayerRequest().setUserId(userId).setPosition(BotState.valueOf(text)));
+        createPlayerRequestByUserIdService.saveCurrentCreateGameRequest(userId, currentCreatePlayerRequest);
 
         try {
             final var savedPlayerRole = yardSportsTeamLobbyClient.sendCreatePlayerRequest(currentCreatePlayerRequest);
@@ -51,6 +49,8 @@ public class EmptyPositionProcessor extends AbstractCommonProcessor {
             sendMessage.setReplyMarkup(keyBoardService.createMainMenuKeyboard(userId, savedPlayerRole));
         } catch (HttpClientErrorException ex) {
             sendMessage.setText(localizationService.getLocalizedMessage("one-way.message.smth-is-wrong", userId));
+            sendMessage.setReplyMarkup(keyBoardService.createMainMenuKeyboard(userId, userRole));
+            log.info(ex.getLocalizedMessage());
         } finally {
             botStateService.saveBotStateForUser(userId, BotState.MAIN_MENU);
         }

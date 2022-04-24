@@ -20,12 +20,12 @@ public class CreatePlayerRequestByUserIdService {
         return createPlayerRequestByUserIdRepository.findById(userId.toString());
     }
 
-    public void saveCurrentCreateGameRequest(Long userId, CreatePlayerRequest createPlayerRequest) {
-        createPlayerRequestByUserIdRepository.findById(userId.toString())
-                .ifPresentOrElse(createPlayerRequestByUserId ->
-                                createPlayerRequestByUserId.setCreatePlayerRequest(createPlayerRequest),
-                        () -> new CreatePlayerRequestByUserId(userId.toString(), createPlayerRequest));
+    public CreatePlayerRequestByUserId saveCurrentCreateGameRequest(Long userId, CreatePlayerRequest createPlayerRequest) {
+        final var createPlayerRequestByUserId = createPlayerRequestByUserIdRepository.findById(userId.toString())
+                .orElse(new CreatePlayerRequestByUserId().setUserId(userId.toString()));
+        createPlayerRequestByUserId.setCreatePlayerRequest(createPlayerRequest);
         log.info("CreatePlayerRequest for user {}: {}", userId, createPlayerRequest);
+        return createPlayerRequestByUserIdRepository.save(createPlayerRequestByUserId);
     }
 
     public boolean isDataAlreadyExists(Long userId) {
