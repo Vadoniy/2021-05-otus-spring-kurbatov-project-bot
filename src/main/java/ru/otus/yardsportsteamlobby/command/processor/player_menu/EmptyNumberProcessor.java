@@ -36,9 +36,9 @@ public class EmptyNumberProcessor extends AbstractCommonProcessor {
             sendMessage.setText(localizationService.getLocalizedMessage("one-way.message.select-position", userId));
             sendMessage.setReplyMarkup(keyBoardService.createSelectPositionMarkup(userId));
             createPlayerRequestByUserIdService.saveCurrentCreateGameRequest(userId, currentCreatePlayerRequest);
+            botStateService.saveBotStateForUser(userId, BotState.EMPTY_POSITION);
         } catch (NumberFormatException nfe) {
             sendMessage.setText(localizationService.getLocalizedMessage("one-way.message.wrong-number", userId));
         }
-        botStateService.saveBotStateForUser(userId, BotState.EMPTY_POSITION);
     }
 }

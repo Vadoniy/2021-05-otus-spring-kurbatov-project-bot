@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import ru.otus.yardsportsteamlobby.command.processor.TelegramMessageProcessor;
 import ru.otus.yardsportsteamlobby.command.processor.callback_quey.GameSelectStateProcessor;
 import ru.otus.yardsportsteamlobby.command.processor.callback_quey.TeamSelectStateProcessor;
+import ru.otus.yardsportsteamlobby.command.processor.create_game.CreateGameProcessor;
 import ru.otus.yardsportsteamlobby.command.processor.create_game.EmptyCapacityProcessor;
 import ru.otus.yardsportsteamlobby.command.processor.create_game.EmptyDateProcessor;
 import ru.otus.yardsportsteamlobby.command.processor.create_game.EmptyMonthProcessor;
@@ -62,7 +63,7 @@ public enum BotState {
 
     SIGN_UP_FOR_GAME(SignUpForGameProcessor.class),
 
-    CREATE_GAME(EmptyMonthProcessor.class),
+    CREATE_GAME(CreateGameProcessor.class),
 
     DELETE(DeletePlayerProcessor.class),
 
@@ -74,7 +75,9 @@ public enum BotState {
 
     EMPTY_POSITION(EmptyPositionProcessor.class),
 
-    EMPTY_NUMBER(EmptyNumberProcessor.class);
+    EMPTY_NUMBER(EmptyNumberProcessor.class),
+
+    SKIP(TeamSelectStateProcessor.class);
 
     private final Class<? extends TelegramMessageProcessor> processor;
 }

@@ -3,13 +3,14 @@ package ru.otus.yardsportsteamlobby.command.processor;
 import lombok.RequiredArgsConstructor;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import ru.otus.yardsportsteamlobby.enums.Prefix;
 import ru.otus.yardsportsteamlobby.service.BotStateService;
 import ru.otus.yardsportsteamlobby.service.KeyBoardService;
 import ru.otus.yardsportsteamlobby.service.LocalizationService;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static ru.otus.yardsportsteamlobby.enums.BotState.SKIP;
 
 @RequiredArgsConstructor
 public abstract class AbstractCommonProcessor implements TelegramMessageProcessor {
@@ -31,7 +32,7 @@ public abstract class AbstractCommonProcessor implements TelegramMessageProcesso
     protected ArrayList<List<InlineKeyboardButton>> createSkipButton(Long userId) {
         final var skipButton = new InlineKeyboardButton();
         skipButton.setText(localizationService.getLocalizedMessage("select.skip", userId));
-        skipButton.setCallbackData(Prefix.SKIP.name());
+        skipButton.setCallbackData(SKIP.name());
         final var keyboardButtonsRow1 = new ArrayList<InlineKeyboardButton>();
         keyboardButtonsRow1.add(skipButton);
         final var keyBoardList = new ArrayList<List<InlineKeyboardButton>>(1);

@@ -1,7 +1,7 @@
 telegrambot:
   user-name: "@YardSportsTeamLobbyBot"
   bot-token: 2023056122:AAHe9L2xN363Bvrch7RUOyw1byw5hR6I1g4
-  webhook-path: https://3feb-178-218-22-211.ngrok.io
+  webhook-path: https://23aa-52-50-187-115.ngrok.io
 
 server:
   port: 5000
@@ -17,7 +17,7 @@ spring:
     fallback-to-system-locale: false
 
   redis:
-    host: 192.168.99.100
+    host: localhost
     database: 0
     port: 6379
 

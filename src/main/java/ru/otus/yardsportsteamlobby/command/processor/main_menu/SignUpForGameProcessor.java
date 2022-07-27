@@ -9,8 +9,7 @@ import ru.otus.yardsportsteamlobby.client.YardSportsTeamLobbyClient;
 import ru.otus.yardsportsteamlobby.command.processor.SignUpForGameCommonProcessor;
 import ru.otus.yardsportsteamlobby.dto.GameDto;
 import ru.otus.yardsportsteamlobby.dto.ListGameResponse;
-import ru.otus.yardsportsteamlobby.dto.SignUpDto;
-import ru.otus.yardsportsteamlobby.enums.CallbackQuerySelect;
+import ru.otus.yardsportsteamlobby.dto.SignUpForGameRequest;
 import ru.otus.yardsportsteamlobby.service.BotStateService;
 import ru.otus.yardsportsteamlobby.service.KeyBoardService;
 import ru.otus.yardsportsteamlobby.service.LocalizationService;
@@ -19,6 +18,8 @@ import ru.otus.yardsportsteamlobby.service.SignUpForGameRequestByUserIdService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static ru.otus.yardsportsteamlobby.enums.BotState.SELECTED_GAME_;
 
 @Service
 public class SignUpForGameProcessor extends SignUpForGameCommonProcessor {
@@ -44,9 +45,11 @@ public class SignUpForGameProcessor extends SignUpForGameCommonProcessor {
             sendMessage.setReplyMarkup(keyBoardService.createMainMenuKeyboard(userId, userRole));
         } else {
             final var gameList = createGameButtonsList(lastGames);
-            signUpForGameRequestByUserIdService.addData(userId, new SignUpDto().setLastGames(lastGames));
+//            signUpForGameRequestByUserIdService.addData(userId, new SignUpDto().setLastGames(lastGames));
+            signUpForGameRequestByUserIdService.saveSignUpForGameRequest(userId, new SignUpForGameRequest().setLastGames(lastGames));
             sendMessage.setText(localizationService.getLocalizedMessage("one-way.message.select-game", userId));
             sendMessage.setReplyMarkup(keyBoardService.createKeyboardMarkup(gameList));
+            botStateService.saveBotStateForUser(userId, SELECTED_GAME_);
         }
     }
 
@@ -58,7 +61,7 @@ public class SignUpForGameProcessor extends SignUpForGameCommonProcessor {
             anotherGame.setText(gameDto.getGameDateTime().toString()
                     + ": " + gameDto.getTeamA().getTeamName()
                     + " - " + gameDto.getTeamB().getTeamName());
-            anotherGame.setCallbackData(CallbackQuerySelect.SELECTED_GAME_.name() + gameDto.getGameId());
+            anotherGame.setCallbackData(SELECTED_GAME_.name() + gameDto.getGameId());
             anotherRow.add(anotherGame);
             keyBoardList.add(anotherRow);
         }

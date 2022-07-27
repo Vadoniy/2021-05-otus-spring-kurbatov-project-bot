@@ -33,9 +33,9 @@ public class EmptyPhoneProcessor extends AbstractCommonProcessor {
                     .orElse(new CreatePlayerRequest().setUserId(userId).setPhone(text));
             createPlayerRequestByUserIdService.saveCurrentCreateGameRequest(userId, currentCreatePlayerRequest);
             sendMessage.setText(localizationService.getLocalizedMessage("one-way.message.enter-number", userId));
+            botStateService.saveBotStateForUser(userId, BotState.EMPTY_NUMBER);
         } else {
             sendMessage.setText(localizationService.getLocalizedMessage("one-way.message.wrong-phone", userId));
         }
-        botStateService.saveBotStateForUser(userId, BotState.EMPTY_NUMBER);
     }
 }

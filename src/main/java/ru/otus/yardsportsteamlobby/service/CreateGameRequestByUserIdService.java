@@ -20,12 +20,13 @@ public class CreateGameRequestByUserIdService {
         return createGameRequestByUserIdRepository.findById(userId.toString());
     }
 
-    public void saveCurrentCreateGameRequest(Long userId, CreateGameRequest createGameRequest) {
-        createGameRequestByUserIdRepository.findById(userId.toString())
-                .ifPresentOrElse(createGameRequestByUserId ->
-                                createGameRequestByUserId.setCreateGameRequest(createGameRequest),
-                        () -> new CreateGameRequestByUserId(userId.toString(), createGameRequest));
+    public CreateGameRequestByUserId saveCurrentCreateGameRequest(Long userId, CreateGameRequest createGameRequest) {
+        final var createGameRequestByUserId = createGameRequestByUserIdRepository.findById(userId.toString())
+                .orElse(new CreateGameRequestByUserId(userId.toString(), createGameRequest));
+        createGameRequestByUserId.setCreateGameRequest(createGameRequest);
+        createGameRequestByUserIdRepository.save(createGameRequestByUserId);
         log.info("CreateGameRequest for user is saved {}: {}", userId, createGameRequest);
+        return createGameRequestByUserId;
     }
 
     public void removeCurrentCreateGameRequest(Long userId) {

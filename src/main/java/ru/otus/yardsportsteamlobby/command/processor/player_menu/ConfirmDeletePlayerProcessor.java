@@ -33,11 +33,6 @@ public class ConfirmDeletePlayerProcessor extends AbstractCommonProcessor {
     }
 
     @Override
-    public SendMessage process(Long chatId, Long userId, String text, String userRole) {
-        return super.process(chatId, userId, text, userRole);
-    }
-
-    @Override
     protected void fillTheResponse(SendMessage sendMessage, Long chatId, Long userId, String text, String userRole) {
         final var newRole = yardSportsTeamLobbyClient.sendDeletePlayerRequest(userId.toString());
         sendMessage.setText(localizationService.getLocalizedMessage("one-way.message.request-is-sent", userId));
