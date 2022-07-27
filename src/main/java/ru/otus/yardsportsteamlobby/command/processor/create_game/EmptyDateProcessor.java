@@ -5,7 +5,6 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import ru.otus.yardsportsteamlobby.command.processor.AbstractCommonProcessor;
 import ru.otus.yardsportsteamlobby.dto.CreateGameRequest;
 import ru.otus.yardsportsteamlobby.enums.BotState;
-import ru.otus.yardsportsteamlobby.enums.Prefix;
 import ru.otus.yardsportsteamlobby.repository.redis.CreateGameRequestByUserId;
 import ru.otus.yardsportsteamlobby.service.BotStateService;
 import ru.otus.yardsportsteamlobby.service.CreateGameRequestByUserIdService;
@@ -13,6 +12,8 @@ import ru.otus.yardsportsteamlobby.service.KeyBoardService;
 import ru.otus.yardsportsteamlobby.service.LocalizationService;
 
 import java.time.LocalDate;
+
+import static ru.otus.yardsportsteamlobby.enums.BotState.SELECTED_DATE_;
 
 @Service
 public class EmptyDateProcessor extends AbstractCommonProcessor {
@@ -30,7 +31,7 @@ public class EmptyDateProcessor extends AbstractCommonProcessor {
         final var currentCreateGameRequest = createGameRequestByUserIdService.getCurrentCreateGameRequest(userId)
                 .map(CreateGameRequestByUserId::getCreateGameRequest)
                 .orElse(new CreateGameRequest());
-        final var gameDateTime = LocalDate.parse(text.replace(Prefix.SELECTED_DATE_.name(), "")).atStartOfDay();
+        final var gameDateTime = LocalDate.parse(text.replace(SELECTED_DATE_.name(), "")).atStartOfDay();
         currentCreateGameRequest.setGameDateTime(gameDateTime);
         sendMessage.setText(localizationService.getLocalizedMessage("enter.message.game-time", userId));
         createGameRequestByUserIdService.saveCurrentCreateGameRequest(userId, currentCreateGameRequest);

@@ -77,7 +77,11 @@ public enum BotState {
 
     EMPTY_NUMBER(EmptyNumberProcessor.class),
 
-    SKIP(TeamSelectStateProcessor.class);
+    SELECTED_MONTH_(TelegramMessageProcessor.class),
+
+    SELECTED_DATE_(TelegramMessageProcessor.class),
+
+    SKIP(TelegramMessageProcessor.class);
 
     private final Class<? extends TelegramMessageProcessor> processor;
 }
