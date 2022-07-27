@@ -1,11 +1,11 @@
 package ru.otus.yardsportsteamlobby.command.processor;
 
+import org.springframework.util.CollectionUtils;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.otus.yardsportsteamlobby.dto.GameDto;
 import ru.otus.yardsportsteamlobby.dto.PlayerDto;
-import ru.otus.yardsportsteamlobby.enums.CallbackQuerySelect;
-import ru.otus.yardsportsteamlobby.enums.Prefix;
+import ru.otus.yardsportsteamlobby.repository.redis.SignUpForGameByUserId;
 import ru.otus.yardsportsteamlobby.service.BotStateService;
 import ru.otus.yardsportsteamlobby.service.KeyBoardService;
 import ru.otus.yardsportsteamlobby.service.LocalizationService;
@@ -13,6 +13,9 @@ import ru.otus.yardsportsteamlobby.service.SignUpForGameRequestByUserIdService;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static ru.otus.yardsportsteamlobby.enums.BotState.SELECTED_GAME_;
+import static ru.otus.yardsportsteamlobby.enums.BotState.SELECTED_TEAM_;
 
 public abstract class SignUpForGameCommonProcessor extends AbstractCommonProcessor {
 
@@ -28,10 +31,12 @@ public abstract class SignUpForGameCommonProcessor extends AbstractCommonProcess
         final var response = new SendMessage();
         response.setChatId(chatId.toString());
         response.setText(localizationService.getLocalizedMessage("one-way.message.select-team", userId));
-        final var gameId = Long.parseLong(text.replace(CallbackQuerySelect.SELECTED_GAME_.name(), ""));
-        signUpForGameRequestByUserIdService.getData(userId).setSelectedGameId(gameId);
-        final var signUpData = signUpForGameRequestByUserIdService.getData(userId);
-        final var selectedGame = signUpData.getLastGames().stream()
+        final var gameId = Long.parseLong(text.replace(SELECTED_GAME_.name(), ""));
+        final var signUpForGameByUserId = signUpForGameRequestByUserIdService.getSignUpForGameRequest(userId)
+                .orElse(new SignUpForGameByUserId());
+        signUpForGameByUserId.getSignUpForGameRequest().setGameId(gameId);
+        signUpForGameRequestByUserIdService.saveSignUpForGameRequest(userId, signUpForGameByUserId.getSignUpForGameRequest());
+        final var selectedGame = signUpForGameByUserId.getSignUpForGameRequest().getLastGames().stream()
                 .filter(gameDto -> gameId == gameDto.getGameId())
                 .findFirst();
         final var teamARoster = selectedGame
@@ -55,7 +60,7 @@ public abstract class SignUpForGameCommonProcessor extends AbstractCommonProcess
 
         for (int i = 1; i <= capacity; i++) {
             sb.append("\n").append(i).append(") ");
-            if (lineUp.size() >= i) {
+            if (!CollectionUtils.isEmpty(lineUp) && lineUp.size() >= i) {
                 sb.append(lineUp.get(i - 1).getPlayerName());
             }
         }
@@ -78,7 +83,7 @@ public abstract class SignUpForGameCommonProcessor extends AbstractCommonProcess
     protected InlineKeyboardButton createTeamRoster(Long teamId, String teamName) {
         final var rosterButton = new InlineKeyboardButton();
         rosterButton.setText(teamName);
-        rosterButton.setCallbackData(Prefix.SELECTED_TEAM_.name() + teamId);
+        rosterButton.setCallbackData(SELECTED_TEAM_.name() + teamId);
         return rosterButton;
     }
 }

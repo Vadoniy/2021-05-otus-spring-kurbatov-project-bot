@@ -6,14 +6,13 @@ import org.springframework.stereotype.Service;
 import ru.otus.yardsportsteamlobby.dto.SignUpForGameRequest;
 import ru.otus.yardsportsteamlobby.repository.SignUpForGameByUserIdRepository;
 import ru.otus.yardsportsteamlobby.repository.redis.SignUpForGameByUserId;
-import ru.otus.yardsportsteamlobby.service.cache.SignUpForGameCache;
 
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class SignUpForGameRequestByUserIdService extends SignUpForGameCache {
+public class SignUpForGameRequestByUserIdService {
 
     private final SignUpForGameByUserIdRepository signUpForGameByUserIdRepository;
 
@@ -21,12 +20,13 @@ public class SignUpForGameRequestByUserIdService extends SignUpForGameCache {
         return signUpForGameByUserIdRepository.findById(userId.toString());
     }
 
-    public void saveSignUpForGameRequest(Long userId, SignUpForGameRequest signUpForGameRequest) {
-        signUpForGameByUserIdRepository.findById(userId.toString())
-                .ifPresentOrElse(createGameRequestByUserId ->
-                                createGameRequestByUserId.setSignUpForGameRequest(signUpForGameRequest),
-                        () -> new SignUpForGameByUserId(userId.toString(), signUpForGameRequest));
+    public SignUpForGameByUserId saveSignUpForGameRequest(Long userId, SignUpForGameRequest signUpForGameRequest) {
+       final var signUpForGameByUserId = signUpForGameByUserIdRepository.findById(userId.toString())
+                .orElse(new SignUpForGameByUserId(userId.toString(), signUpForGameRequest));
+        signUpForGameByUserId.setSignUpForGameRequest(signUpForGameRequest);
+        signUpForGameByUserIdRepository.save(signUpForGameByUserId);
         log.info("CreateGameRequest for user is saved {}: {}", userId, signUpForGameRequest);
+        return signUpForGameByUserId;
     }
 
     public void removeSignUpForGameRequest(Long userId) {

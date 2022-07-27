@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import ru.otus.yardsportsteamlobby.client.YardSportsTeamLobbyClient;
 import ru.otus.yardsportsteamlobby.command.processor.SignUpForGameCommonProcessor;
+import ru.otus.yardsportsteamlobby.dto.SignUpForGameRequest;
+import ru.otus.yardsportsteamlobby.repository.redis.SignUpForGameByUserId;
 import ru.otus.yardsportsteamlobby.service.BotStateService;
 import ru.otus.yardsportsteamlobby.service.KeyBoardService;
 import ru.otus.yardsportsteamlobby.service.LocalizationService;
@@ -33,7 +35,10 @@ public class TeamSelectStateProcessor extends SignUpForGameCommonProcessor {
 
     @Override
     protected void fillTheResponse(SendMessage sendMessage, Long chatId, Long userId, String text, String userRole) {
-        final var selectedGameId = signUpForGameRequestByUserIdService.getData(userId).getSelectedGameId();
+        final var selectedGameId = signUpForGameRequestByUserIdService.getSignUpForGameRequest(userId)
+                .map(SignUpForGameByUserId::getSignUpForGameRequest)
+                .map(SignUpForGameRequest::getGameId)
+                .orElseThrow();
         final var selectedTeamId = Long.parseLong(text.replace(SELECTED_TEAM_.name(), ""));
         final var responseEntity = yardSportsTeamLobbyClient.signUpForGameRequest(selectedGameId, selectedTeamId, userId);
         final var responseStatus = responseEntity.getStatusCode();
@@ -56,7 +61,7 @@ public class TeamSelectStateProcessor extends SignUpForGameCommonProcessor {
                             afterSelectionGame.getTeamB().getLineUp());
             sendMessage.setText(responseText);
             sendMessage.setReplyMarkup(keyBoardService.createMainMenuKeyboard(userId, userRole));
-            signUpForGameRequestByUserIdService.removeData(userId);
+            signUpForGameRequestByUserIdService.removeSignUpForGameRequest(userId);
         }
     }
 }
